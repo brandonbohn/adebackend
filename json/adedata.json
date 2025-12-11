@@ -1,0 +1,403 @@
+[
+  {
+    "id": 1,
+    "image": "",
+    "title": "ADE Community Based Organization",
+    "date": "2025-10-14",
+    "sections": [
+      "hero",
+      "about",
+      "contact",
+      "social"
+    ],
+    "sectionsData": {
+      "heroSection": {
+        "title": "changing lives one goal at a time",
+        "videoSrc": "/soccervideo.mp4",
+        "section": "heroSection",
+        "subtitle": "",
+        "buttons": [],
+        "status": "published"
+      },
+      "aboutSection": {
+        "title": "Who We Are",
+        "intro": "ADE Community Based Organization (ADE CBO) is a registered, community-led non-profit in Kibera, Nairobi. Founded in 2018 by Adriano Situma and Daniel Ogweno, ADE CBO began as a response to the urgent needs of girls in the slums—especially those missing school due to poverty and lack of basic supplies. What started as a small initiative has grown into a movement using football as a bridge to education, mentorship, and dignity. Today, we empower children and youth through sports, education, health, and community support, addressing the root causes of poverty and exclusion.",
+        "sections": [],
+        "boxStyle": {
+          "background": "#000",
+          "color": "#fff",
+          "borderRadius": 12,
+          "padding": "1.5rem",
+          "marginBottom": "1.5rem"
+        },
+        "teamGallery": [
+          {
+            "src": "/greenteam.jpeg",
+            "alt": "Green Team"
+          },
+          {
+            "src": "/blueteam.jpeg",
+            "alt": "Blue Team"
+          },
+          {
+            "src": "/whiteteam.jpeg",
+            "alt": "White Team"
+          },
+          {
+            "src": "/teamphoto.jpeg",
+            "alt": "Main Team Photo"
+          },
+          {
+            "src": "/teamandcoaches.jpeg",
+            "alt": "Team and Coaches"
+          },
+          {
+            "src": "/teamhuddle.jpeg",
+            "alt": "Team Huddle"
+          },
+          {
+            "src": "/teammix.jpeg",
+            "alt": "Team Mix"
+          },
+          {
+            "src": "/teamphotoonthefield.jpeg",
+            "alt": "Team Photo on Field"
+          }
+        ]
+      },
+      "foundersSection": {
+        "title": "Our People",
+        "founders": [
+          {
+            "name": "Adriano Situma",
+            "role": "Visionary leader and co-founder",
+            "image": 31,
+            "bio": "Adriano is the driving force behind ADE CBO, inspiring youth and leading the organization with passion and vision."
+          },
+          {
+            "name": "Daniel Ogweno",
+            "role": "Community mentor and co-founder",
+            "image": 32,
+            "bio": "Daniel is a dedicated mentor, supporting girls and youth in Kibera through education, football, and community engagement."
+          }
+        ],
+        "sections": []
+      },
+      "impactBoard": {
+        "highlight": {
+          "icon": "👧",
+          "value": 55,
+          "label": "girls supported"
+        },
+        "metrics": [
+          {
+            "icon": "🎓",
+            "value": 15,
+            "label": "completed high school"
+          },
+          {
+            "icon": "🏛️",
+            "value": 3,
+            "label": "joined public universities (2025 intake)"
+          },
+          {
+            "icon": "🏫",
+            "value": 5,
+            "label": "enrolled in college since 2022"
+          },
+          {
+            "icon": "⚽",
+            "value": 7,
+            "label": "playing in the National Super League"
+          },
+          {
+            "icon": "🇰🇪",
+            "value": 2,
+            "label": "called to Kenya’s U15 & U17 national teams"
+          },
+          {
+            "icon": "📝",
+            "value": 10,
+            "label": "sitting national exams this November"
+          }
+        ]
+      },
+      "visionSection": {
+        "title": "Our Vision",
+        "description": "We envision a global community that harnesses sports for transformative change, ensuring every child and family in informal settlements has an equitable and promising future. Our goal is to contribute to the achievement of SDG No.1 (No Poverty by 2030) by empowering girls in Kibera to access education, mentorship, and the opportunity to achieve their dreams through the power of football.",
+        "boxStyle": {
+          "background": "#000",
+          "color": "#fff",
+          "borderRadius": 12,
+          "padding": "1.5rem",
+          "marginBottom": "1.5rem"
+        }
+      },
+      "WhatweDo": {
+        "title": "What We Do",
+        "intro": "Our programs are designed to uplift and transform lives in Kibera.",
+        "sections": [
+          {
+            "heading": "Education Through Football",
+            "description": "We connect girls with schools through football talent scouting, turning athletic ability into academic opportunity."
+          },
+          {
+            "heading": "Life Support",
+            "description": "We provide essential supplies—sanitary towels, underwear, soap, and food—plus mentorship to help girls stay in school and thrive. We guide girls through challenges such as early marriage, teenage pregnancy, and the risks of school dropout."
+          },
+          {
+            "heading": "Mentorship & Guidance",
+            "description": "Our girls receive mentorship on self-esteem, life planning, and leadership to break cycles of early marriage and teenage pregnancy."
+          },
+          {
+            "heading": "Community Initiatives",
+            "description": "We run health, nutrition, and environmental programs, and organize campaigns for girls’ empowerment and community well-being."
+          }
+        ],
+        "boxStyle": {
+          "background": "#000",
+          "color": "#fff",
+          "borderRadius": 12,
+          "padding": "1.5rem",
+          "marginBottom": "1.5rem"
+        },
+        "education": "",
+        "lifeSupport": {
+          "title": "",
+          "items": []
+        },
+        "mentorship": {
+          "title": "",
+          "description": "",
+          "items": []
+        }
+      },
+      "ourMission": {
+        "title": "Our Mission",
+        "description": "We exist to uplift and support girls in Kibera by using football as a bridge to education, dignity, and opportunity. Through mentorship, essential support, and talent development, we create pathways for girls to break cycles of poverty, early marriage, and school dropout—and instead, become changemakers in their lives and their communities.",
+        "boxStyle": {
+          "background": "#000",
+          "color": "#fff",
+          "borderRadius": 12,
+          "padding": "1.5rem",
+          "marginBottom": "1.5rem"
+        }
+      },
+      "socialSection": {
+        "title": "Follow Us",
+        "links": [
+          {
+            "name": "Twitter",
+            "url": "https://twitter.com/"
+          },
+          {
+            "name": "Facebook",
+            "url": "https://facebook.com/"
+          },
+          {
+            "name": "Instagram",
+            "url": "https://instagram.com/"
+          },
+          {
+            "name": "TikTok",
+            "url": "https://tiktok.com/"
+          }
+        ]
+      },
+      "girlsSection": {
+        "title": "Sponsored Girls",
+        "girls": [
+          {
+            "name": "Amina",
+            "age": "13",
+            "dream": "Become a doctor",
+            "description": "Bright and determined student excelling in science subjects.",
+            "situation": "Previously at risk of dropping out due to lack of school fees.",
+            "image": 1
+          },
+          {
+            "name": "Neema",
+            "age": "14",
+            "dream": "Play professional football",
+            "description": "Talented midfielder with strong leadership on the pitch.",
+            "situation": "Lives with grandmother; sponsorship covers meals and equipment.",
+            "image": 2
+          },
+          {
+            "name": "Joy",
+            "age": "12",
+            "dream": "Become a teacher",
+            "description": "Helps younger children with homework after practice.",
+            "situation": "Struggled with attendance before receiving sanitary supplies.",
+            "image": 3
+          },
+          {
+            "name": "Faith",
+            "age": "15",
+            "dream": "Engineer designing community solutions",
+            "description": "Enjoys math and building small craft projects.",
+            "situation": "Lost a parent; sponsorship ensures continued education.",
+            "image": 4
+          },
+          {
+            "name": "Grace",
+            "age": "13",
+            "dream": "Nurse supporting girls health",
+            "description": "Advocates for hygiene and wellness among teammates.",
+            "situation": "Was missing school monthly due to lack of sanitary products.",
+            "image": 5
+          },
+          {
+            "name": "Mary",
+            "age": "14",
+            "dream": "Journalist telling community stories",
+            "description": "Writes short articles about training sessions.",
+            "situation": "Shared one uniform with sibling before support arrived.",
+            "image": 6
+          },
+          {
+            "name": "Rose",
+            "age": "12",
+            "dream": "Software developer",
+            "description": "Curious about technology and problem solving.",
+            "situation": "Nearly dropped out after family relocation; stabilized with sponsorship.",
+            "image": 7
+          }
+        ]
+      },
+      "donateSection": {
+        "title": "Give a Girl in Kibera a Fighting Chance",
+        "subtitle": "Education • Nutrition • Opportunity",
+        "heroBg": "/onthefield.jpeg",
+        "cta": [
+          {
+            "icon": "💰",
+            "title": "DONATE",
+            "description": "Help provide school fees, food, and essentials",
+            "button": "Give Now"
+          },
+          {
+            "icon": "👥",
+            "title": "VOLUNTEER",
+            "description": "Share your time, skills, or expertise",
+            "button": "Get Involved"
+          },
+          {
+            "icon": "💝",
+            "title": "SPONSOR",
+            "description": "Change one girl's entire future",
+            "button": "Sponsor",
+            "link": "/sponsor-a-girl"
+          }
+        ],
+        "trust": {
+          "title": "Your Money Goes Directly to the Girls",
+          "commitment": "Our Commitment:",
+          "points": [
+            "100% of sponsorships fund girl support",
+            "Transparent reporting on all spending",
+            "Tax-deductible receipts (if applicable)",
+            "Secure payment processing",
+            "Cancel anytime"
+          ],
+          "contactButton": "Contact Us",
+          "contactLink": "/contact"
+        },
+        "reality": {
+          "title": "The Reality in Kibera",
+          "subtitle": "Without support, these girls face:",
+          "points": [
+            "Dropping out of school permanently",
+            "Child marriage",
+            "Exploitation and abuse",
+            "Chronic malnutrition",
+            "No path out of extreme poverty"
+          ],
+          "footer": "Football brings them together. Your support keeps them in school, fed, and dreaming of a better future."
+        },
+        "donation": {
+          "title": "Make a Donation 💰",
+          "subtitle": "In Kibera, girls face impossible choices.",
+          "description": "Your donation provides:",
+          "items": [
+            "School fees and uniforms",
+            "Daily meals and nutrition",
+            "Sanitary products and dignity",
+            "Books and school supplies",
+            "Safe transportation",
+            "Football training and mentorship"
+          ],
+          "currencyOptions": [
+            "USD ($)",
+            "KES (KSh)"
+          ],
+          "amounts": [
+            25,
+            50,
+            100,
+            250
+          ],
+          "impactExamples": [
+            "25 = School uniform for one girl",
+            "50 = One month of meals",
+            "100 = Term’s school fees",
+            "250 = Full term of school + nutrition"
+          ],
+          "footer": "Football is how we reach them. Education and nutrition are how we change their lives."
+        },
+        "volunteer": {
+          "title": "Volunteer Your Time & Skills 👥",
+          "subtitle": "Help us reach more girls in Kibera:",
+          "opportunities": [
+            {
+              "icon": "🏃",
+              "title": "Coaching",
+              "description": "Lead football training"
+            },
+            {
+              "icon": "📚",
+              "title": "Tutoring",
+              "description": "Academic support"
+            },
+            {
+              "icon": "🤝",
+              "title": "Mentorship",
+              "description": "Life skills & guidance"
+            },
+            {
+              "icon": "🍲",
+              "title": "Nutrition",
+              "description": "Help with meal programs"
+            },
+            {
+              "icon": "🎨",
+              "title": "Marketing",
+              "description": "Tell our story"
+            },
+            {
+              "icon": "📊",
+              "title": "Operations",
+              "description": "Admin support"
+            }
+          ],
+          "formTitle": "Volunteer Interest Form:",
+          "formSuccess": "Thank you for volunteering! We’ll be in touch soon.",
+          "helpOptions": [
+            "Football coaching",
+            "Academic tutoring",
+            "Mentorship/life skills",
+            "Nutrition/meal programs",
+            "Marketing/storytelling",
+            "Operations/admin",
+            "Fundraising"
+          ],
+          "locationOptions": [
+            "Nairobi/Kenya",
+            "Remote/International"
+          ],
+          "availabilityPlaceholder": "e.g. weekends, evenings"
+        }
+      }
+    }
+  }
+]
