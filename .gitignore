@@ -1,0 +1,4 @@
+# Ignore payment options
+services/paymentOptionService.ts
+models/PaymentOption.ts
+routes/paymentOptionRoutes.ts
