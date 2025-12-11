@@ -1,8 +1,3 @@
-
-
-
-
-
 import { Request, Response } from 'express';
 import express from 'express';
 import cors from 'cors';
@@ -15,6 +10,7 @@ import { createPaymentOption, updatePaymentOption, getPaymentOptions, deletePaym
 import { createCart, getCart, addItemToCart, removeItemFromCart } from './controllers/cartController';
 import { getAllAvailablePaymentOptions } from './controllers/paymentOptionController';
 import { processPayment } from './controllers/paymentOptionController';
+import girlsRoutes from './routes/girlsRoutes';
 
 
 
@@ -70,7 +66,9 @@ app.get('/available-payment-options', getAllAvailablePaymentOptions);
 app.post('/process-payment', processPayment);
 
 // Website Content CRUD routes
-app.use('/content', contentRoutes);
+app.use('/api/content', contentRoutes);
+// Girls API route
+app.use('/api/girls', girlsRoutes);
 
 app.listen(port, () => {
 	console.log(`Server running on port ${port}`);
