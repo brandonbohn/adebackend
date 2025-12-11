@@ -24,8 +24,9 @@ console.log('Starting server...');
 const app = express();
 app.use(cors());
 // Serve static JSON files
+
 app.use('/Backend/json', express.static(path.join(__dirname, 'json')));
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 3000;
 
 
 app.use(express.json());
