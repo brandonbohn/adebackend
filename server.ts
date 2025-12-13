@@ -24,7 +24,7 @@ app.get('/api/check-json', (req: Request, res: Response) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = parseInt(process.env.PORT || '8080', 10);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} (0.0.0.0)`);
   console.log('Startup complete');
