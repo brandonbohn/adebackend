@@ -1,31 +1,42 @@
 import fs from 'fs';
-// ...existing code...
+import { Request, Response } from 'express';
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import contentRoutes from './routes/contentRoutes';
+import path from 'path';
+import { addDonor, getDonors, getDonorById, deleteDonor } from './controllers/donorController';
+import { createPaymentOption, updatePaymentOption, getPaymentOptions, deletePaymentOption } from './controllers/paymentOptionController';
+import { createCart, getCart, addItemToCart, removeItemFromCart } from './controllers/cartController';
+import { getAllAvailablePaymentOptions } from './controllers/paymentOptionController';
+import { processPayment } from './controllers/paymentOptionController';
+
+dotenv.config();
+console.log('Starting server...');
 const app = express();
 app.use(cors({
-	origin: 'https://www.adekiberafoundation.org',
-	credentials: true
+  origin: 'https://www.adekiberafoundation.org',
+  credentials: true
 }));
 // Serve static JSON files
-
 app.use('/Backend/json', express.static(path.join(__dirname, 'json')));
 const port = process.env.PORT || 3000;
-
-
 app.use(express.json());
 
 // Endpoint to check adedata.json presence and contents
 app.get('/api/check-json', (req: Request, res: Response) => {
-	const dataPath = path.join(__dirname, 'json', 'adedata.json');
-	try {
-		if (fs.existsSync(dataPath)) {
-			const raw = fs.readFileSync(dataPath, 'utf-8');
-			res.json({ exists: true, length: raw.length, preview: raw.slice(0, 200) });
-		} else {
-			res.status(404).json({ exists: false, message: 'adedata.json not found', path: dataPath });
-		}
-	} catch (err) {
-		res.status(500).json({ error: 'Error reading adedata.json', details: err });
-	}
+  const dataPath = path.join(__dirname, 'json', 'adedata.json');
+  try {
+    if (fs.existsSync(dataPath)) {
+      const raw = fs.readFileSync(dataPath, 'utf-8');
+      res.json({ exists: true, length: raw.length, preview: raw.slice(0, 200) });
+    } else {
+      res.status(404).json({ exists: false, message: 'adedata.json not found', path: dataPath });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Error reading adedata.json', details: err });
+  }
 });
 import { Request, Response } from 'express';
 import express from 'express';
