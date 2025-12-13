@@ -7,7 +7,7 @@
     "build": "npx tsc",
     "prestart": "npm run build",
     "start": "node dist/server.js",
-    "postinstall": "chmod +x ./node_modules/.bin/tsc"
+    "postinstall": ""
   },
   "dependencies": {
     "@types/stripe": "^8.0.416",
