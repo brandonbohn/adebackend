@@ -10,13 +10,12 @@ import { createPaymentOption, updatePaymentOption, getPaymentOptions, deletePaym
 import { createCart, getCart, addItemToCart, removeItemFromCart } from './controllers/cartController';
 import { getAllAvailablePaymentOptions } from './controllers/paymentOptionController';
 import { processPayment } from './controllers/paymentOptionController';
-import girlsRoutes from './routes/girlsRoutes';
+
 
 
 
 dotenv.config();
 console.log('Starting server...');
-
 const app = express();
 app.use(cors());
 // Serve static JSON files
@@ -68,7 +67,8 @@ app.post('/process-payment', processPayment);
 // Website Content CRUD routes
 app.use('/api/content', contentRoutes);
 // Girls API route
-app.use('/api/girls', girlsRoutes);
+// Removed girls API route as data is now served from content route
+
 
 app.listen(port, () => {
 	console.log(`Server running on port ${port}`);
