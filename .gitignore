@@ -1,4 +1,6 @@
-# Ignore payment options
-services/paymentOptionService.ts
-models/PaymentOption.ts
-routes/paymentOptionRoutes.ts
+
+# Ignore build and environment files
+node_modules/
+dist/
+.env
+.env.*
