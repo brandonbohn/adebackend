@@ -8,7 +8,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const contentRoutes_1 = __importDefault(require("./routes/contentRoutes"));
 const app = (0, express_1.default)();
-const port = process.env.PORT || 8080;
+const port = parseInt(process.env.PORT || '8080', 10);
 app.use(express_1.default.json());
 app.use('/api/content', contentRoutes_1.default);
 // Health check and static file check endpoints
@@ -27,9 +27,9 @@ app.get('/api/check-json', (req, res) => {
         res.status(500).json({ error: 'Error reading adedata.json', details: err });
     }
 });
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-    console.log('Startup complete');
+const PORT = parseInt(process.env.PORT || '8080', 10);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
 });
 process.on('uncaughtException', err => {
     console.error('Uncaught Exception:', err);

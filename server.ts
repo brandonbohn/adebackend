@@ -4,11 +4,17 @@ import path from 'path';
 import contentRoutes from './routes/contentRoutes';
 
 const app = express();
-
-const port = parseInt(process.env.PORT || '8080', 10);
-
 app.use(express.json());
+
+app.get("/health", (req: Request, res: Response) => {
+  res.send("Server is healthy");
+});
+
 app.use('/api/content', contentRoutes);
+const PORT = parseInt(process.env.PORT || '8080', 10);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 // Health check and static file check endpoints
 app.get('/api/check-json', (req: Request, res: Response) => {
@@ -24,12 +30,6 @@ app.get('/api/check-json', (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error reading adedata.json', details: err });
   }
 });
-
-const PORT = parseInt(process.env.PORT || '8080', 10);
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
 
 process.on('uncaughtException', err => {
   console.error('Uncaught Exception:', err);
