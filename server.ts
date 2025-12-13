@@ -1,10 +1,24 @@
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import contentRoutes from './routes/contentRoutes';
 
 const app = express();
 app.use(express.json());
+
+// Enable CORS for only the production frontend domain
+app.use(cors({
+  origin: [
+    'https://www.adekiberafoundation.org',
+    'http://localhost:5173' // allow local dev
+  ],
+  credentials: true
+}));
+
+app.get("/_railway_test", (req: Request, res: Response) => {
+  res.send("Welcome to the ADEF-C Backend Server");
+});
 
 app.get("/health", (req: Request, res: Response) => {
   res.send("Server is healthy");
