@@ -17,7 +17,10 @@ import { processPayment } from './controllers/paymentOptionController';
 dotenv.config();
 console.log('Starting server...');
 const app = express();
-app.use(cors());
+app.use(cors({
+	origin: 'https://www.adekiberafoundation.org',
+	credentials: true
+}));
 // Serve static JSON files
 
 app.use('/Backend/json', express.static(path.join(__dirname, 'json')));
