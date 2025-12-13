@@ -8,6 +8,16 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS for only the production frontend domain
+
+interface RailwayTestRequest extends Request {}
+interface RailwayTestResponse extends Response {}
+
+app.get(
+	"/_railway_test",
+	(_: RailwayTestRequest, req: RailwayTestRequest, res: RailwayTestResponse) => {
+		res.send("Welcome to the ADEF-C Backend Server");
+	}
+);
 app.use(cors({
   origin: [
     'https://www.adekiberafoundation.org',
@@ -16,9 +26,10 @@ app.use(cors({
   credentials: true
 }));
 
-app.get("/_railway_test", (req: Request, res: Response) => {
+/* The code snippet `app.get("/_railway_test", (req: Request, res: Response) => {
   res.send("Welcome to the ADEF-C Backend Server");
-});
+});` is setting up a route in the Express application. */
+
 
 app.get("/health", (req: Request, res: Response) => {
   res.send("Server is healthy");
