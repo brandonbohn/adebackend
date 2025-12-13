@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ContentModel } from '../models/Content';
+// import { ContentModel } from '../models/Content';
 import fs from 'fs';
 import path from 'path';
 
@@ -124,19 +124,11 @@ export async function getContentBySection(req: Request, res: Response): Promise<
 }
 
 export async function updateContent(req: Request, res: Response): Promise<void> {
-  try {
-    const updated = await ContentModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update content' });
-  }
+  // Not implemented: file-based update by id
+  res.status(501).json({ error: 'Update by id not implemented in file-based backend.' });
 }
 
 export async function deleteContent(req: Request, res: Response): Promise<void> {
-  try {
-    await ContentModel.findByIdAndDelete(req.params.id);
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete content' });
-  }
+  // Not implemented: file-based delete by id
+  res.status(501).json({ error: 'Delete by id not implemented in file-based backend.' });
 }

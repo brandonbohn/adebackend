@@ -8,7 +8,7 @@ exports.getAllContent = getAllContent;
 exports.getContentBySection = getContentBySection;
 exports.updateContent = updateContent;
 exports.deleteContent = deleteContent;
-const Content_1 = require("../models/Content");
+// import { ContentModel } from '../models/Content';
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 async function createContent(req, res) {
@@ -135,20 +135,10 @@ async function getContentBySection(req, res) {
     }
 }
 async function updateContent(req, res) {
-    try {
-        const updated = await Content_1.ContentModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updated);
-    }
-    catch (error) {
-        res.status(500).json({ error: 'Failed to update content' });
-    }
+    // Not implemented: file-based update by id
+    res.status(501).json({ error: 'Update by id not implemented in file-based backend.' });
 }
 async function deleteContent(req, res) {
-    try {
-        await Content_1.ContentModel.findByIdAndDelete(req.params.id);
-        res.status(204).send();
-    }
-    catch (error) {
-        res.status(500).json({ error: 'Failed to delete content' });
-    }
+    // Not implemented: file-based delete by id
+    res.status(501).json({ error: 'Delete by id not implemented in file-based backend.' });
 }
