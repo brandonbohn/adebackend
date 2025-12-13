@@ -4,6 +4,7 @@ import path from 'path';
 import contentRoutes from './routes/contentRoutes';
 
 const app = express();
+
 const port = parseInt(process.env.PORT || '8080', 10);
 
 app.use(express.json());
@@ -24,11 +25,10 @@ app.get('/api/check-json', (req: Request, res: Response) => {
   }
 });
 
-const PORT = parseInt(process.env.PORT || '8080', 10);
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${port} (0.0.0.0)`);
-  console.log('Startup complete');
-});
+const PORT =parseInt (process.env.PORT || '8080', 10);
+app.listen(PORT, "0,0.0.0", () => 
+  console.log(`Server is running on port ${PORT}`));
+
 
 process.on('uncaughtException', err => {
   console.error('Uncaught Exception:', err);
