@@ -59,6 +59,18 @@
 			"type": "shell",
 			"command": "npx tsc",
 			"group": "build"
+		},
+		{
+			"label": "Build TypeScript project and copy json",
+			"type": "shell",
+			"command": "npm run build && npm run postbuild",
+			"group": "build"
+		},
+		{
+			"label": "Build TypeScript project",
+			"type": "shell",
+			"command": "npm run build",
+			"group": "build"
 		}
 	]
 }

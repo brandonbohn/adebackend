@@ -4,9 +4,10 @@
   "description": "Node.js backend with Express.js",
   "main": "server.js",
   "scripts": {
-    "build": " tsc",
+    "build": "tsc",
     "prestart": "npm run build",
     "start": "node dist/server.js",
+    "postbuild": "xcopy json dist\\json /E /I /Y",
     "postinstall": ""
   },
   "dependencies": {
