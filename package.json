@@ -2,7 +2,7 @@
   "name": "adefc-backend",
   "version": "1.0.0",
   "description": "Node.js backend with Express.js",
-  "main": "server.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
     "prestart": "npm run build",
