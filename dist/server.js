@@ -8,7 +8,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const contentRoutes_1 = __importDefault(require("./routes/contentRoutes"));
 const app = (0, express_1.default)();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.use(express_1.default.json());
 app.use('/api/content', contentRoutes_1.default);
 // Health check and static file check endpoints

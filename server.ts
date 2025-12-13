@@ -4,7 +4,7 @@ import path from 'path';
 import contentRoutes from './routes/contentRoutes';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use('/api/content', contentRoutes);

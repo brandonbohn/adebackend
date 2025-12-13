@@ -53,6 +53,12 @@
 			"type": "shell",
 			"command": "npx tsc",
 			"group": "build"
+		},
+		{
+			"label": "Build TypeScript project",
+			"type": "shell",
+			"command": "npx tsc",
+			"group": "build"
 		}
 	]
 }
