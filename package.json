@@ -2,9 +2,9 @@
   "name": "adefc-backend",
   "version": "1.0.0",
   "description": "Node.js backend with Express.js",
-  "main": "server.ts",
+  "main": "server.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": " tsc",
     "prestart": "npm run build",
     "start": "node dist/server.js",
     "postinstall": ""
