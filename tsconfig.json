@@ -7,5 +7,14 @@
     "strict": true,
     "esModuleInterop": true
   },
-  "include": ["models/**/*.ts", "controllers/**/*.ts", "services/**/*.ts", "server.ts", "database.ts"]
+  "include": [
+    "models/**/*.ts",
+    "controllers/**/*.ts",
+    "services/**/*.ts",
+    "routes/**/*.ts",
+    "types/**/*.ts",
+    "server.ts",
+    "database.ts",
+    "index.ts"
+  ]
 }
