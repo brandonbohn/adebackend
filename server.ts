@@ -1,5 +1,19 @@
-// Endpoint to check adedata.json presence and contents
 import fs from 'fs';
+// ...existing code...
+const app = express();
+app.use(cors({
+	origin: 'https://www.adekiberafoundation.org',
+	credentials: true
+}));
+// Serve static JSON files
+
+app.use('/Backend/json', express.static(path.join(__dirname, 'json')));
+const port = process.env.PORT || 3000;
+
+
+app.use(express.json());
+
+// Endpoint to check adedata.json presence and contents
 app.get('/api/check-json', (req: Request, res: Response) => {
 	const dataPath = path.join(__dirname, 'json', 'adedata.json');
 	try {
