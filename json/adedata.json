@@ -20,12 +20,12 @@
           "buttons": [
             {
               "text": "Change a Girls Life Today",
-              "link": "/donate",
+              "link": "https://www.adekiberafoundation.org/donate",
               "style": "primary"
             },
             {
               "text": "Sponsor a Girl",
-              "link": "/sponsor-a-girl",
+              "link": "https://www.adekiberafoundation.org/donate",
               "style": "secondary"
             }
           ],
