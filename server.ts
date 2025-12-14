@@ -89,6 +89,6 @@ process.on('unhandledRejection', err => {
 // --- SPA catch-all: serve frontend index.html for all non-API, non-static requests ---
 const frontendBuildPath = path.join(__dirname, '../frontend/dist'); // adjust if needed
 app.use(express.static(frontendBuildPath));
-app.get(/^\/(?!api\/).*/, (req, res) => {
+app.get("*", (req, res) => {
   res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
