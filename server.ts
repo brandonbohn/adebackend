@@ -1,21 +1,4 @@
-// Dedicated endpoint for donateSection
-app.get('/api/donate', (req: Request, res: Response) => {
-  const dataPath = path.join(__dirname, 'json', 'adedata.json');
-  try {
-    if (!fs.existsSync(dataPath)) {
-      return res.status(404).json({ error: 'adedata.json not found' });
-    }
-    const raw = fs.readFileSync(dataPath, 'utf-8');
-    const data = JSON.parse(raw);
-    const donateSection = data[0]?.sectionsData?.donateSection;
-    if (!donateSection) {
-      return res.status(404).json({ error: 'donateSection not found' });
-    }
-    res.json(donateSection);
-  } catch (err) {
-    res.status(500).json({ error: 'Error reading donateSection', details: err });
-  }
-});
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import fs from 'fs';
@@ -75,17 +58,37 @@ app.get('/api/check-json', (req: Request, res: Response) => {
   }
 });
 
-// --- SPA catch-all: serve frontend index.html for all non-API, non-static requests ---
-import path from 'path';
-const frontendBuildPath = path.join(__dirname, '../frontend/dist'); // adjust if needed
-app.use(express.static(frontendBuildPath));
-app.get(/^\/(?!api\/).*/, (req, res) => {
-  res.sendFile(path.join(frontendBuildPath, 'index.html'));
+
+// Dedicated endpoint for donateSection
+app.get('/api/donate', (req: Request, res: Response) => {
+  const dataPath = path.join(__dirname, 'json', 'adedata.json');
+  try {
+    if (!fs.existsSync(dataPath)) {
+      return res.status(404).json({ error: 'adedata.json not found' });
+    }
+    const raw = fs.readFileSync(dataPath, 'utf-8');
+    const data = JSON.parse(raw);
+    const donateSection = data[0]?.sectionsData?.donateSection;
+    if (!donateSection) {
+      return res.status(404).json({ error: 'donateSection not found' });
+    }
+    res.json(donateSection);
+  } catch (err) {
+    res.status(500).json({ error: 'Error reading donateSection', details: err });
+  }
 });
 
 process.on('uncaughtException', err => {
   console.error('Uncaught Exception:', err);
 });
+
 process.on('unhandledRejection', err => {
   console.error('Unhandled Rejection:', err);
+});
+
+// --- SPA catch-all: serve frontend index.html for all non-API, non-static requests ---
+const frontendBuildPath = path.join(__dirname, '../frontend/dist'); // adjust if needed
+app.use(express.static(frontendBuildPath));
+app.get(/^\/(?!api\/).*/, (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
