@@ -10,11 +10,19 @@ const path_1 = __importDefault(require("path"));
 const contentRoutes_1 = __importDefault(require("./routes/contentRoutes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-// Enable CORS for all routes
-app.use((0, cors_1.default)());
-app.get("/_railway_test", (req, res) => {
+app.get("/_railway_test", (_, req, res) => {
     res.send("Welcome to the ADEF-C Backend Server");
 });
+app.use((0, cors_1.default)({
+    origin: [
+        'https://www.adekiberafoundation.org',
+        'http://localhost:5173' // allow local dev
+    ],
+    credentials: true
+}));
+/* The code snippet `app.get("/_railway_test", (req: Request, res: Response) => {
+  res.send("Welcome to the ADEF-C Backend Server");
+});` is setting up a route in the Express application. */
 app.get("/health", (req, res) => {
     res.send("Server is healthy");
 });
