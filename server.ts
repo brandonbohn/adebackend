@@ -59,6 +59,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+
 // Health check and static file check endpoints
 app.get('/api/check-json', (req: Request, res: Response) => {
   const dataPath = path.join(__dirname, 'json', 'adedata.json');
@@ -72,6 +73,14 @@ app.get('/api/check-json', (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).json({ error: 'Error reading adedata.json', details: err });
   }
+});
+
+// --- SPA catch-all: serve frontend index.html for all non-API, non-static requests ---
+import path from 'path';
+const frontendBuildPath = path.join(__dirname, '../frontend/dist'); // adjust if needed
+app.use(express.static(frontendBuildPath));
+app.get(/^\/(?!api\/).*/, (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
 
 process.on('uncaughtException', err => {
