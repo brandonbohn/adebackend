@@ -47,9 +47,34 @@ app.get('/api/check-json', (req, res) => {
         res.status(500).json({ error: 'Error reading adedata.json', details: err });
     }
 });
+// Dedicated endpoint for donateSection
+app.get('/api/donate', (req, res) => {
+    const dataPath = path_1.default.join(__dirname, 'json', 'adedata.json');
+    try {
+        if (!fs_1.default.existsSync(dataPath)) {
+            return res.status(404).json({ error: 'adedata.json not found' });
+        }
+        const raw = fs_1.default.readFileSync(dataPath, 'utf-8');
+        const data = JSON.parse(raw);
+        const donateSection = data[0]?.sectionsData?.donateSection;
+        if (!donateSection) {
+            return res.status(404).json({ error: 'donateSection not found' });
+        }
+        res.json(donateSection);
+    }
+    catch (err) {
+        res.status(500).json({ error: 'Error reading donateSection', details: err });
+    }
+});
 process.on('uncaughtException', err => {
     console.error('Uncaught Exception:', err);
 });
 process.on('unhandledRejection', err => {
     console.error('Unhandled Rejection:', err);
+});
+// --- SPA catch-all: serve frontend index.html for all non-API, non-static requests ---
+const frontendBuildPath = path_1.default.join(__dirname, '../frontend/dist'); // adjust if needed
+app.use(express_1.default.static(frontendBuildPath));
+app.get("*", (req, res) => {
+    res.sendFile(path_1.default.join(frontendBuildPath, 'index.html'));
 });
