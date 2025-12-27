@@ -84,11 +84,4 @@ process.on('uncaughtException', err => {
 
 process.on('unhandledRejection', err => {
   console.error('Unhandled Rejection:', err);
-}); 
-
-// --- SPA catch-all: serve frontend index.html for all non-API, non-static requests ---
-const frontendBuildPath = path.join(__dirname, '../frontend/dist'); // adjust if needed
-app.use(express.static(frontendBuildPath));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
