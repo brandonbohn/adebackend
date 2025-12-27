@@ -4,10 +4,9 @@
   "description": "Node.js backend with Express.js",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cpy \"json/**/*\" dist/json",
     "prestart": "npm run build",
     "start": "node dist/server.js",
-    "postbuild": "cpy \"json/**/*\" dist/json",
     "postinstall": ""
   },
   "dependencies": {
