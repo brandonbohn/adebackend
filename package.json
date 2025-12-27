@@ -4,7 +4,7 @@
   "description": "Node.js backend with Express.js",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc && cpy \"json/**/*\" dist/json",
+    "build": "tsc && mkdir -p dist/json && cp json/*.json dist/json/",
     "prestart": "npm run build",
     "start": "node dist/server.js",
     "postinstall": ""
