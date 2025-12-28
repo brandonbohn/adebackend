@@ -9,8 +9,8 @@
   },
   "scripts": {
     "build": "echo 'Starting TypeScript compilation...' && tsc && echo 'TypeScript compilation complete' && echo 'Copying JSON files...' && mkdir -p dist/json && cp json/*.json dist/json/ && echo 'Build complete!'",
-    "prestart": "npm run build",
     "start": "node dist/server.js",
+    "dev": "npm run build && npm start",
     "postinstall": "",
     "test": "node -e \"console.log('Test: Node.js', process.version); process.exit(0);\"",
     "verify": "echo 'Verifying build...' && ls -la dist/ && echo 'Checking JSON files...' && ls -la dist/json/ || echo 'JSON directory not found'"
