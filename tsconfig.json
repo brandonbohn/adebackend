@@ -4,8 +4,13 @@
     "module": "commonjs",
     "rootDir": "./",
     "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true
   },
   "include": [
     "models/**/*.ts",
