@@ -2,8 +2,14 @@ services:
   - type: web
     name: adebackend
     env: node
-    buildCommand: npm install && npm run build
+    region: oregon # Choose your preferred region
+    plan: free # or starter/standard
+    buildCommand: echo "=== Starting Render Build ===" && npm install && echo "=== Dependencies Installed ===" && npm run build && echo "=== Build Complete ==="
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=512" # Adjust based on your Render plan
+    # Render automatically provides PORT environment variable

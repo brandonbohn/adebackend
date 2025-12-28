@@ -5,8 +5,17 @@ import fs from 'fs';
 import path from 'path';
 import contentRoutes from './routes/contentRoutes';
 
+console.log('=== SERVER STARTUP LOG ===');
+console.log('Node version:', process.version);
+console.log('Environment:', process.env.NODE_ENV || 'development');
+console.log('PORT:', process.env.PORT || '8080');
+console.log('Current directory:', __dirname);
+console.log('=========================');
+
 const app = express();
+console.log('Express app created');
 app.use(express.json());
+console.log('JSON middleware loaded');
 
 // Enable CORS for only the production frontend domain
 
@@ -26,6 +35,7 @@ app.use(cors({
   ],
   credentials: true
 }));
+console.log('CORS middleware loaded');
 
 /* The code snippet `app.get("/_railway_test", (req: Request, res: Response) => {
   res.send("Welcome to the ADEF-C Backend Server");
@@ -33,13 +43,29 @@ app.use(cors({
 
 
 app.get("/health", (req: Request, res: Response) => {
-  res.send("Server is healthy");
+  const healthInfo = {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    nodeVersion: process.version,
+    port: PORT || process.env.PORT,
+    environment: process.env.NODE_ENV || 'development',
+    memoryUsage: process.memoryUsage()
+  };
+  console.log('Health check requested:', healthInfo);
+  res.json(healthInfo);
 });
-
+console.log('Loading content routes...');
 app.use('/api/content', contentRoutes);
+console.log('Content routes loaded');
+
 const PORT = parseInt(process.env.PORT || '8080', 10);
+console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);
+
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`✓ Server successfully started on port ${PORT}`);
+  console.log(`✓ Server accessible at http://0.0.0.0:${PORT}`);
+  console.log('=== SERVER READY ===');
 });
 
 
