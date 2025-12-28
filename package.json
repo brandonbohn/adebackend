@@ -4,11 +4,11 @@
   "description": "Node.js backend with Express.js",
   "main": "dist/server.js",
   "engines": {
-    "node": ">=18.19.0",
+    "node": "18.x",
     "npm": ">=9.0.0"
   },
   "scripts": {
-    "build": "tsc && mkdir -p dist/json && cp json/*.json dist/json/",
+    "build": "tsc --skipLibCheck && mkdir -p dist/json && cp json/*.json dist/json/",
     "start": "node dist/server.js",
     "dev": "npm run build && npm start"
   },
