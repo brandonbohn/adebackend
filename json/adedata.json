@@ -140,14 +140,12 @@
         "girlsSection": {
           "title": "Sponsored Girls",
           "girls": [
-            { "name": "Amina", "age": "13", "dream": "Become a doctor", "description": "Bright and determined student excelling in science subjects.", "situation": "Previously at risk of dropping out due to lack of school fees.", "image": 1 },
-            { "name": "Neema", "age": "14", "dream": "Play professional football", "description": "Talented midfielder with strong leadership on the pitch.", "situation": "Lives with grandmother; sponsorship covers meals and equipment.", "image": 2 },
-            { "name": "Joy", "age": "12", "dream": "Become a teacher", "description": "Helps younger children with homework after practice.", "situation": "Struggled with attendance before receiving sanitary supplies.", "image": 3 },
-            { "name": "Faith", "age": "15", "dream": "Engineer designing community solutions", "description": "Enjoys math and building small craft projects.", "situation": "Lost a parent; sponsorship ensures continued education.", "image": 4 },
-            { "name": "Grace", "age": "13", "dream": "Nurse supporting girls health", "description": "Advocates for hygiene and wellness among teammates.", "situation": "Was missing school monthly due to lack of sanitary products.", "image": 5 },
-            { "name": "Mary", "age": "14", "dream": "Journalist telling community stories", "description": "Writes short articles about training sessions.", "situation": "Shared one uniform with sibling before support arrived.", "image": 6 },
-            { "name": "Rose", "age": "12", "dream": "Software developer", "description": "Curious about technology and problem solving.", "situation": "Nearly dropped out after family relocation; stabilized with sponsorship.", "image": 7 }
-          ]
+            { "name": "Talia Ndinada", "age": "14", "dream": "become a nurse", "description": "wantes to help her community when she grows up and loves playing football ", "sentanceinthierwords":"I wish to help my community when I grow up", "situation": "Lives with only her mother in the Kibera slum and her mother ccan barely afford to feed her and can not give her three meals a day", "image": 1 },
+            { "name": "Mithcell Atieno", "age": "15", "dream": "become a nurse", "description": "Seh loves english and is attending Toi Junior school in grade ten ", "sentanceinthierwords": "I'll appreciate any support for ade", "situation": "Her mohter can barely feed here and she sometimes gets sent home from school for lack of tuition and school fees", "image": 2 },
+            { "name": "Vivian  Atieno", "age": "16", "dream": "Become a nurse", "description": "she loves english and lives with her mother and is attentding Kojongo High Schoolform three", "sentanceinthierwords": "When I grow up I want to help vulnerable girls", "situation": "she lost her father and lives and her mother and her live on less than a dollar a day and cant afford three meals a day", "image": 3 },
+            { "name": "Cynthia Anyaugo", "age": "14", "dream": "to become a pro footballer", "description": "her favorite subject is math and she goes to new hope inititative kibera living with her Mother ", "sentanceinthierwords": "I wish to play internationally", "situation": "Lost a parent; sponsorship ensures continued education.", "image": 4 },
+            { "name": "Cindy Adhiambo", "age": "15", "dream": "Become a Doctor", "description": "Loves playing football and tries to help her grandma who supports her the best she can", "sentanceinthierwords": "ADE CBO has helped us in to many ways", "situation": "Lives with her grandma who cant afford to do a serious job to feed the family", "image": 5 }
+            ]
         },
         "donateSection": {
           "title": "Give a Girl in Kibera a Fighting Chance",
