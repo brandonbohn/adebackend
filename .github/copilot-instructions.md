@@ -2,7 +2,7 @@
 - [x] Scaffold the Project
 - [x] Customize the Project
 - [x] Compile the Project
-- [ ] Create and Run Task
+- [x] Create and Run Task
 - [ ] Launch the Project
 - [x] Ensure Documentation is Complete
 
@@ -12,3 +12,4 @@
 - Environment variable setup in .env
 - README.md and copilot-instructions.md added
 - Example route and controller implemented
+- Dynamic donation form endpoint added to content routes

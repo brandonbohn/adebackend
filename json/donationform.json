@@ -1,0 +1,276 @@
+{
+  "donationForm": {
+    "title": "Support a Girl in Kibera",
+    "subtitle": "Your donation changes lives through education and football",
+    "formFields": {
+      "donorInfo": {
+        "firstName": {
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Enter your first name",
+          "validation": "minLength:2"
+        },
+        "lastName": {
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Enter your last name",
+          "validation": "minLength:2"
+        },
+        "email": {
+          "label": "Email Address",
+          "type": "email",
+          "required": true,
+          "placeholder": "you@example.com",
+          "validation": "email"
+        },
+        "phone": {
+          "label": "Phone Number",
+          "type": "tel",
+          "required": false,
+          "placeholder": "+254 XXX XXX XXX",
+          "validation": "phone"
+        }
+      },
+      "donationType": {
+        "label": "Donation Type",
+        "type": "radio",
+        "required": true,
+        "options": [
+          {
+            "value": "one-time",
+            "label": "One-Time Donation",
+            "description": "Make a single contribution"
+          },
+          {
+            "value": "monthly",
+            "label": "Monthly Sponsorship",
+            "description": "Support a girl every month"
+          }
+        ],
+        "default": "one-time"
+      },
+      "amount": {
+        "label": "Donation Amount",
+        "type": "amount",
+        "required": true,
+        "currencies": [
+          {
+            "code": "USD",
+            "symbol": "$",
+            "presetAmounts": [25, 50, 100, 250, 500],
+            "customAmount": true,
+            "minAmount": 5,
+            "impactMessages": {
+              "25": "Provides a school uniform for one girl",
+              "50": "Covers one month of meals",
+              "100": "Pays for one term's school fees",
+              "250": "Supports full term of school + nutrition",
+              "500": "Sponsors a girl for 3 months"
+            }
+          },
+          {
+            "code": "KES",
+            "symbol": "KSh",
+            "presetAmounts": [2500, 5000, 10000, 25000, 50000],
+            "customAmount": true,
+            "minAmount": 500,
+            "impactMessages": {
+              "2500": "Provides a school uniform for one girl",
+              "5000": "Covers one month of meals",
+              "10000": "Pays for one term's school fees",
+              "25000": "Supports full term of school + nutrition",
+              "50000": "Sponsors a girl for 3 months"
+            }
+          }
+        ]
+      },
+      "paymentMethod": {
+        "label": "Payment Method",
+        "type": "select",
+        "required": true,
+        "options": [
+          {
+            "type": "paypal",
+            "label": "PayPal",
+            "icon": "💳",
+            "description": "Pay securely with PayPal",
+            "currencies": ["USD"],
+            "enabled": true,
+            "processingFee": 2.9,
+            "processingFeeType": "percentage"
+          },
+          {
+            "type": "mpesa",
+            "label": "M-Pesa",
+            "icon": "📱",
+            "description": "Mobile money payment (Kenya)",
+            "currencies": ["KES"],
+            "enabled": true,
+            "processingFee": 0,
+            "processingFeeType": "none",
+            "additionalFields": [
+              {
+                "name": "phoneNumber",
+                "label": "M-Pesa Phone Number",
+                "type": "tel",
+                "required": true,
+                "placeholder": "07XX XXX XXX",
+                "validation": "kenyaPhone"
+              }
+            ]
+          },
+          {
+            "type": "flutterwave",
+            "label": "Card Payment",
+            "icon": "💳",
+            "description": "Pay with Visa, Mastercard, or local cards",
+            "currencies": ["USD", "KES"],
+            "enabled": true,
+            "processingFee": 3.8,
+            "processingFeeType": "percentage"
+          }
+        ]
+      },
+      "dedication": {
+        "label": "Dedicate this donation?",
+        "type": "checkbox",
+        "required": false,
+        "options": [
+          {
+            "value": "in-honor",
+            "label": "In honor of someone",
+            "additionalFields": [
+              {
+                "name": "honorName",
+                "label": "Name",
+                "type": "text",
+                "placeholder": "Person's name"
+              }
+            ]
+          },
+          {
+            "value": "in-memory",
+            "label": "In memory of someone",
+            "additionalFields": [
+              {
+                "name": "memoryName",
+                "label": "Name",
+                "type": "text",
+                "placeholder": "Person's name"
+              }
+            ]
+          }
+        ]
+      },
+      "anonymousDonation": {
+        "label": "Make this donation anonymous",
+        "type": "checkbox",
+        "required": false,
+        "default": false
+      },
+      "mailingList": {
+        "label": "Send me updates about ADE CBO's impact",
+        "type": "checkbox",
+        "required": false,
+        "default": true
+      },
+      "comments": {
+        "label": "Message (Optional)",
+        "type": "textarea",
+        "required": false,
+        "placeholder": "Share why you're supporting ADE CBO...",
+        "maxLength": 500
+      }
+    },
+    "apiEndpoint": {
+      "url": "/api/payments/process-payment",
+      "method": "POST",
+      "requestBody": {
+        "amount": "number (in cents/smallest unit)",
+        "currency": "string (USD or KES)",
+        "paymentOptionType": "string (paypal|mpesa|flutterwave)",
+        "paymentDetails": {
+          "donorInfo": {
+            "firstName": "string",
+            "lastName": "string",
+            "email": "string",
+            "phone": "string (optional)"
+          },
+          "donationType": "string (one-time|monthly)",
+          "dedication": "object (optional)",
+          "anonymous": "boolean",
+          "mailingList": "boolean",
+          "comments": "string (optional)"
+        }
+      },
+      "responseBody": {
+        "status": "string (success|error)",
+        "provider": "string",
+        "transactionId": "string (optional)",
+        "checkoutUrl": "string (optional for redirect)",
+        "message": "string"
+      }
+    },
+    "validationRules": {
+      "email": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+      "phone": "^\\+?[0-9]{10,15}$",
+      "kenyaPhone": "^(07|\\+2547)[0-9]{8}$",
+      "minAmount": {
+        "USD": 5,
+        "KES": 500
+      }
+    },
+    "confirmationPage": {
+      "title": "Thank You for Your Generosity!",
+      "subtitle": "Your donation is changing lives in Kibera",
+      "sections": {
+        "receipt": {
+          "title": "Donation Receipt",
+          "fields": [
+            "transactionId",
+            "amount",
+            "currency",
+            "date",
+            "paymentMethod",
+            "donorName",
+            "donorEmail"
+          ],
+          "emailReceipt": true,
+          "downloadReceipt": true
+        },
+        "impact": {
+          "title": "Your Impact",
+          "message": "Your donation will directly support girls in Kibera with education, nutrition, and football training."
+        },
+        "nextSteps": {
+          "title": "What Happens Next",
+          "steps": [
+            "You'll receive an email receipt within 24 hours",
+            "We'll send you updates on how your donation is making an impact",
+            "You can track our progress on social media"
+          ]
+        },
+        "shareButtons": {
+          "title": "Spread the Word",
+          "platforms": ["facebook", "twitter", "whatsapp", "email"],
+          "message": "I just supported girls in Kibera through ADE CBO! Join me in changing lives through football and education."
+        }
+      }
+    },
+    "errorMessages": {
+      "paymentFailed": "Payment processing failed. Please try again or contact support.",
+      "invalidAmount": "Please enter a valid donation amount.",
+      "invalidEmail": "Please enter a valid email address.",
+      "invalidPhone": "Please enter a valid phone number.",
+      "networkError": "Network error. Please check your connection and try again.",
+      "serverError": "Server error. Please try again later or contact support."
+    },
+    "successMessages": {
+      "paymentProcessing": "Processing your payment...",
+      "paymentComplete": "Payment successful! Thank you for your support.",
+      "receiptSent": "Receipt sent to your email."
+    }
+  }
+}
