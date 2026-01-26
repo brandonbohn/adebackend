@@ -4,6 +4,10 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import contentRoutes from './routes/contentRoutes';
+import donorRoutes from './routes/donorroutes';
+import volunteerRoutes from './routes/volunteerRoutes';
+import contactRoutes from './routes/contactRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 console.log('Node version:', process.version);
@@ -58,6 +62,22 @@ app.get("/health", (req: Request, res: Response) => {
 console.log('Loading content routes...');
 app.use('/api/content', contentRoutes);
 console.log('Content routes loaded');
+
+console.log('Loading donor routes...');
+app.use('/api/donors', donorRoutes);
+console.log('Donor routes loaded');
+
+console.log('Loading volunteer routes...');
+app.use('/api/volunteers', volunteerRoutes);
+console.log('Volunteer routes loaded');
+
+console.log('Loading contact routes...');
+app.use('/api/contacts', contactRoutes);
+console.log('Contact routes loaded');
+
+console.log('Loading admin routes...');
+app.use('/api/admin', adminRoutes);
+console.log('Admin routes loaded');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);
