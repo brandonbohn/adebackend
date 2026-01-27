@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { sendEmail, generateDonationReceipt } from '../utils/emailservice';
 
 // Based on your donor.ts model
@@ -142,7 +142,7 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             });
         } else {
             // Create new donor
-            const donorId = uuidv4();
+            const donorId = randomUUID();
             const newDonation: Donation = {
                 donorId,
                 amount,
