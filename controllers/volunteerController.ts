@@ -13,7 +13,15 @@ const volunteersFilePath = path.join(__dirname, '../json/volunteers.json');
  */
 export const createVolunteer = async (req: Request, res: Response) => {
   try {
-    const volunteerData: CreateVolunteerRequest = req.body;
+    let volunteerData = req.body;
+    
+    // Map frontend field names to backend field names
+    if (volunteerData.firstName && !volunteerData.name) {
+      volunteerData.name = volunteerData.firstName + (volunteerData.lastName ? ' ' + volunteerData.lastName : '');
+    }
+    if (volunteerData.skills && !volunteerData.interests) {
+      volunteerData.interests = volunteerData.skills;
+    }
 
     // Validation
     if (!volunteerData.name || volunteerData.name.trim().length < 2) {
@@ -40,37 +48,13 @@ export const createVolunteer = async (req: Request, res: Response) => {
       return res.status(400).json(errorResponse);
     }
 
-    if (!volunteerData.phone || !/^\+?[0-9]{10,15}$/.test(volunteerData.phone)) {
+    if (!volunteerData.phone || !/^\+?[0-9]{10,15}$/.test(volunteerData.phone.replace(/[^\d\+]/g, ''))) {
       const errorResponse: ErrorResponse = {
         success: false,
         error: {
           code: 'INVALID_PHONE',
           message: 'Please enter a valid phone number',
           field: 'phone'
-        }
-      };
-      return res.status(400).json(errorResponse);
-    }
-
-    if (!volunteerData.location || volunteerData.location.trim().length < 2) {
-      const errorResponse: ErrorResponse = {
-        success: false,
-        error: {
-          code: 'INVALID_LOCATION',
-          message: 'Please enter your location',
-          field: 'location'
-        }
-      };
-      return res.status(400).json(errorResponse);
-    }
-
-    if (!volunteerData.basedIn || !['nairobi', 'kenya', 'remote'].includes(volunteerData.basedIn)) {
-      const errorResponse: ErrorResponse = {
-        success: false,
-        error: {
-          code: 'INVALID_BASED_IN',
-          message: 'Please select where you are based',
-          field: 'basedIn'
         }
       };
       return res.status(400).json(errorResponse);
