@@ -20,7 +20,7 @@ const volunteersFilePath = path.join(__dirname, '../json/volunteers.json');
  */
 export const createContact = async (req: Request, res: Response) => {
   try {
-    const { name, organization, email, phone, reason, subject, message } = req.body;
+    const { name, organization, email, phone, reason = 'general', subject, message } = req.body;
 
     // Validation
     if (!name || name.trim().length < 2) {
@@ -45,9 +45,16 @@ export const createContact = async (req: Request, res: Response) => {
       });
     }
 
-    if (!reason || !['volunteering', 'donation', 'partnership', 'general', 'other'].includes(reason)) {
+    if (!message || message.trim().length < 5) {
       return res.status(400).json({
         success: false,
+        error: {
+          code: 'INVALID_MESSAGE',
+          message: 'Message must be at least 5 characters',
+          field: 'message'
+        }
+      });
+    }
         error: {
           code: 'INVALID_REASON',
           message: 'Please select a valid reason for contact',
