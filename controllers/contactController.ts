@@ -55,13 +55,6 @@ export const createContact = async (req: Request, res: Response) => {
         }
       });
     }
-        error: {
-          code: 'INVALID_REASON',
-          message: 'Please select a valid reason for contact',
-          field: 'reason'
-        }
-      });
-    }
 
     if (!subject || subject.trim().length < 3) {
       return res.status(400).json({
