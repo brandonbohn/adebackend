@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { IContact } from '../models/contact';
 import { sendEmail, generateContactConfirmationEmail, generateAdminContactNotification } from '../utils/emailservice';
 
@@ -86,7 +86,7 @@ export const createContact = async (req: Request, res: Response) => {
     }
 
     // Create new contact
-    const contactId = uuidv4();
+    const contactId = randomUUID();
     const newContact: IContact = {
       _id: contactId,
       name: name.trim(),
@@ -124,7 +124,7 @@ export const createContact = async (req: Request, res: Response) => {
 
       if (!existingDonor) {
         const donorLead = {
-          _id: uuidv4(),
+          _id: randomUUID(),
           name: name.trim(),
           email: email.toLowerCase().trim(),
           phone: phone?.trim(),
@@ -158,7 +158,7 @@ export const createContact = async (req: Request, res: Response) => {
 
       if (!existingVolunteer) {
         const volunteerLead = {
-          _id: uuidv4(),
+          _id: randomUUID(),
           name: name.trim(),
           email: email.toLowerCase().trim(),
           phone: phone?.trim(),

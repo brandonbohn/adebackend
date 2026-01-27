@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { CreateVolunteerRequest, CreateVolunteerResponse, ErrorResponse } from '../contracts/donationContract';
 import { Volunteer } from '../models/volunteer';
 
@@ -97,7 +97,7 @@ export const createVolunteer = async (req: Request, res: Response) => {
 
     // Create new volunteer record
     const newVolunteer: Volunteer = {
-      _id: uuidv4(),
+      _id: randomUUID(),
       name: volunteerData.name.trim(),
       email: volunteerData.email.toLowerCase().trim(),
       phone: volunteerData.phone.trim(),
