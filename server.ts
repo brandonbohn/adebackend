@@ -92,6 +92,10 @@ console.log('Volunteer routes loaded');
 
 console.log('Loading contact routes...');
 app.use('/api/contacts', contactRoutes);
+// Add aliases for contact routes
+app.use('/api/contact', contactRoutes);
+app.use('/contact', contactRoutes);
+app.use('/contacts', contactRoutes);
 console.log('Contact routes loaded');
 
 console.log('Loading admin routes...');
