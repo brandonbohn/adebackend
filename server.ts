@@ -70,6 +70,24 @@ console.log('Donor routes loaded');
 console.log('Loading volunteer routes...');
 app.use('/api/volunteers', volunteerRoutes);
 app.use('/volunteers', volunteerRoutes); // Redirect /volunteers to /api/volunteers for frontend compatibility
+
+// Quick GET endpoint for /volunteers page load
+app.get('/volunteers', (req: Request, res: Response) => {
+  const fs = require('fs');
+  const path = require('path');
+  const volunteersFilePath = path.join(__dirname, 'json', 'volunteers.json');
+  try {
+    if (fs.existsSync(volunteersFilePath)) {
+      const data = fs.readFileSync(volunteersFilePath, 'utf-8');
+      res.json(JSON.parse(data || '[]'));
+    } else {
+      res.json([]);
+    }
+  } catch (error) {
+    res.json([]);
+  }
+});
+
 console.log('Volunteer routes loaded');
 
 console.log('Loading contact routes...');
