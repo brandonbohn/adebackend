@@ -69,6 +69,7 @@ console.log('Donor routes loaded');
 
 console.log('Loading volunteer routes...');
 app.use('/api/volunteers', volunteerRoutes);
+app.use('/volunteers', volunteerRoutes); // Redirect /volunteers to /api/volunteers for frontend compatibility
 console.log('Volunteer routes loaded');
 
 console.log('Loading contact routes...');
