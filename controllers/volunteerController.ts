@@ -100,7 +100,13 @@ export const createVolunteer = async (req: Request, res: Response) => {
     volunteers.push(newVolunteer);
 
     // Save to file
-    fs.writeFileSync(volunteersFilePath, JSON.stringify(volunteers, null, 2));
+    try {
+      fs.writeFileSync(volunteersFilePath, JSON.stringify(volunteers, null, 2));
+      console.log(`✓ Volunteer saved to ${volunteersFilePath}:`, newVolunteer._id);
+    } catch (writeError) {
+      console.error(`✗ Failed to write volunteer to ${volunteersFilePath}:`, writeError);
+      throw writeError;
+    }
 
     // Return success response with complete volunteer data
     const response: CreateVolunteerResponse = {

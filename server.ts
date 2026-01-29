@@ -8,6 +8,7 @@ import donorRoutes from './routes/donorroutes';
 import volunteerRoutes from './routes/volunteerRoutes';
 import contactRoutes from './routes/contactRoutes';
 import adminRoutes from './routes/adminRoutes';
+import paymentRoutes from './routes/paypalRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 console.log('Node version:', process.version);
@@ -66,6 +67,10 @@ console.log('Content routes loaded');
 console.log('Loading donor routes...');
 app.use('/api/donors', donorRoutes);
 console.log('Donor routes loaded');
+
+console.log('Loading payment routes...');
+app.use('/api/payments', paymentRoutes);
+console.log('Payment routes loaded');
 
 console.log('Loading volunteer routes...');
 app.use('/api/volunteers', volunteerRoutes);

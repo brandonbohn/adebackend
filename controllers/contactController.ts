@@ -21,6 +21,8 @@ const volunteersFilePath = path.join(__dirname, '../json/volunteers.json');
 export const createContact = async (req: Request, res: Response) => {
   try {
     const { name, organization, email, phone, reason = 'general', subject, message } = req.body;
+    const normalizedReason = (reason || 'general').toString().toLowerCase();
+    const normalizedSubject = subject?.trim() || 'General Inquiry';
 
     // Validation
     if (!name || name.trim().length < 2) {
@@ -56,28 +58,6 @@ export const createContact = async (req: Request, res: Response) => {
       });
     }
 
-    if (!subject || subject.trim().length < 3) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_SUBJECT',
-          message: 'Subject must be at least 3 characters',
-          field: 'subject'
-        }
-      });
-    }
-
-    if (!message || message.trim().length < 10) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_MESSAGE',
-          message: 'Message must be at least 10 characters',
-          field: 'message'
-        }
-      });
-    }
-
     // Read existing contacts
     let contacts: IContact[] = [];
     if (fs.existsSync(contactsFilePath)) {
@@ -93,8 +73,8 @@ export const createContact = async (req: Request, res: Response) => {
       organization: organization?.trim(),
       email: email.toLowerCase().trim(),
       phone: phone?.trim(),
-      reason,
-      subject: subject.trim(),
+      reason: normalizedReason,
+      subject: normalizedSubject,
       message: message.trim(),
       status: 'new',
       createdAt: new Date().toISOString()
@@ -104,12 +84,18 @@ export const createContact = async (req: Request, res: Response) => {
     contacts.push(newContact);
 
     // Save to contacts.json
-    fs.writeFileSync(contactsFilePath, JSON.stringify(contacts, null, 2));
+    try {
+      fs.writeFileSync(contactsFilePath, JSON.stringify(contacts, null, 2));
+      console.log(`✓ Contact saved to ${contactsFilePath}:`, newContact._id);
+    } catch (writeError) {
+      console.error(`✗ Failed to write contact to ${contactsFilePath}:`, writeError);
+      throw writeError;
+    }
 
     // SMART CROSS-REFERENCING: Create leads based on reason
     let crossReference: any = null;
 
-    if (reason === 'donation') {
+    if (normalizedReason === 'donation') {
       // Create a donor lead
       let donors: any[] = [];
       if (fs.existsSync(donorsFilePath)) {
@@ -133,7 +119,7 @@ export const createContact = async (req: Request, res: Response) => {
           status: 'potential', // Lead status
           source: 'contact-form', // Track where they came from
           contactId: contactId, // Link back to contact form
-          notes: `Interested in donation. Subject: ${subject}`,
+          notes: `Interested in donation. Subject: ${normalizedSubject}`,
           createdAt: new Date().toISOString()
         };
 
@@ -143,7 +129,7 @@ export const createContact = async (req: Request, res: Response) => {
       }
     }
 
-    if (reason === 'volunteering') {
+    if (normalizedReason === 'volunteering') {
       // Create a volunteer lead
       let volunteers: any[] = [];
       if (fs.existsSync(volunteersFilePath)) {
@@ -169,7 +155,7 @@ export const createContact = async (req: Request, res: Response) => {
           status: 'interested', // Lead status
           source: 'contact-form', // Track where they came from
           contactId: contactId, // Link back to contact form
-          notes: `Interested in volunteering. Subject: ${subject}`,
+          notes: `Interested in volunteering. Subject: ${normalizedSubject}`,
           createdAt: new Date().toISOString()
         };
 
@@ -180,7 +166,7 @@ export const createContact = async (req: Request, res: Response) => {
     }
 
     // Send confirmation email to user
-    const confirmationHtml = generateContactConfirmationEmail(name, subject);
+    const confirmationHtml = generateContactConfirmationEmail(name, normalizedSubject);
     await sendEmail({
       to: email,
       subject: 'We Received Your Message - ADE Organization',
@@ -194,14 +180,14 @@ export const createContact = async (req: Request, res: Response) => {
         name,
         email,
         phone,
-        reason,
-        subject,
+        normalizedReason,
+        normalizedSubject,
         message
       );
       await sendEmail({
         to: process.env.EMAIL_USER, // Send to organization's email
-        subject: `🔔 New Contact Form: ${reason.toUpperCase()} - ${name}`,
-        text: `New contact from ${name} (${email}) regarding ${reason}. Subject: ${subject}`,
+        subject: `🔔 New Contact Form: ${normalizedReason.toUpperCase()} - ${name}`,
+        text: `New contact from ${name} (${email}) regarding ${normalizedReason}. Subject: ${normalizedSubject}`,
         html: adminNotificationHtml
       });
     }
