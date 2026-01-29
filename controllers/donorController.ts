@@ -259,22 +259,23 @@ function generatePaymentRedirect(
     email?: string,
     name?: string
 ): { url: string } | null {
-    const baseUrl = process.env.PAYMENT_REDIRECT_BASE || 'https://adebackend.onrender.com';
+    const baseUrl = process.env.API_URL || 'http://localhost:8080';
     
+    const params = new URLSearchParams({
+        provider: paymentMethod.toLowerCase(),
+        amount: amount.toString(),
+        currency: currency || 'USD',
+        donorId,
+        ...(email && { email }),
+        ...(name && { name })
+    });
+
     switch (paymentMethod.toLowerCase()) {
         case 'paypal':
-            // Generate PayPal checkout URL
-            // This would typically redirect to PayPal's hosted checkout
-            return {
-                url: `${baseUrl}/api/payments/process-payment?provider=paypal&amount=${amount}&currency=${currency}&donorId=${donorId}`
-            };
         case 'flutterwave':
-            return {
-                url: `${baseUrl}/api/payments/process-payment?provider=flutterwave&amount=${amount}&currency=${currency}&donorId=${donorId}&email=${email}`
-            };
         case 'mpesa':
             return {
-                url: `${baseUrl}/api/payments/process-payment?provider=mpesa&amount=${amount}&currency=${currency}&donorId=${donorId}`
+                url: `${baseUrl}/api/payments/checkout?${params.toString()}`
             };
         default:
             return null;
