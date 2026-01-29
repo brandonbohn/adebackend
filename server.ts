@@ -8,7 +8,7 @@ import donorRoutes from './routes/donorroutes';
 import volunteerRoutes from './routes/volunteerRoutes';
 import contactRoutes from './routes/contactRoutes';
 import adminRoutes from './routes/adminRoutes';
-import paymentRoutes from './routes/paypalRoutes';
+import paymentRoutes from './routes/paymentRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 console.log('Node version:', process.version);
