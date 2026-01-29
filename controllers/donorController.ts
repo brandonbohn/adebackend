@@ -158,8 +158,15 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                     existingDonor.email,
                     existingDonor.name
                 );
-                // Redirect directly to payment provider
-                return res.redirect(paymentRedirect.url);
+                // Return JSON with redirect URL so frontend can navigate
+                res.status(201).json({ 
+                    success: true,
+                    message: 'Donation added to existing donor', 
+                    donor: existingDonor,
+                    donation: newDonation,
+                    paymentUrl: paymentRedirect.url
+                });
+                return;
             }
 
             // No payment method means just return success (unusual but supported)
@@ -225,8 +232,15 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                     newDonor.email,
                     newDonor.name
                 );
-                // Redirect directly to payment provider
-                return res.redirect(paymentRedirect.url);
+                // Return JSON with redirect URL so frontend can navigate
+                res.status(201).json({ 
+                    success: true,
+                    message: 'New donor added successfully', 
+                    donor: newDonor,
+                    donation: newDonation,
+                    paymentUrl: paymentRedirect.url
+                });
+                return;
             }
 
             // No payment method means just return success (unusual but supported)
