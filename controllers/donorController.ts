@@ -251,3 +251,48 @@ export async function deleteDonor(req: Request, res: Response): Promise<void> {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+export async function getAllDonations(req: Request, res: Response): Promise<void> {
+    try {
+        const donations = readDonations();
+        res.status(200).json(donations);
+    } catch (error) {
+        console.error('Error fetching donations:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export async function createDonation(req: Request, res: Response): Promise<void> {
+    try {
+        const { donorId, amount, currency, message, paymentMethod, transactionId } = req.body;
+        
+        if (!donorId || !amount) {
+            res.status(400).json({ message: 'Missing required fields: donorId, amount' });
+            return;
+        }
+
+        const donations = readDonations();
+        const newDonation: Donation = {
+            donorId,
+            amount,
+            date: new Date().toISOString(),
+            message,
+            currency: currency || 'USD',
+            paymentMethod: paymentMethod || 'unknown',
+            transactionId: transactionId || `txn-${randomUUID()}`
+        };
+
+        donations.push(newDonation);
+        writeDonations(donations);
+        
+        console.log(`✓ Donation created: ${newDonation.transactionId} from donor ${donorId}`);
+
+        res.status(201).json({ 
+            message: 'Donation recorded successfully',
+            donation: newDonation 
+        });
+    } catch (error) {
+        console.error('Error creating donation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
