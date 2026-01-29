@@ -100,12 +100,13 @@ export const handlePaymentSuccess = async (req: Request, res: Response) => {
     // TODO: Send confirmation email
     // TODO: Trigger any other success workflows
 
-    // Redirect back to frontend success page
-    const successPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-success?transactionId=${transactionId}&provider=${provider}`;
+    // Redirect to success page (org-specific URL from env)
+    const successPage = process.env.DONATION_SUCCESS_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-success?transactionId=${transactionId}&provider=${provider}`;
     res.redirect(successPage);
   } catch (error) {
     console.error('Error handling payment success:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?error=payment_failed`);
+    const errorPage = process.env.DONATION_ERROR_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?error=payment_failed`;
+    res.redirect(errorPage);
   }
 };
 
@@ -119,8 +120,8 @@ export const handlePaymentCancel = async (req: Request, res: Response) => {
 
     console.log(`⚠️ Payment cancelled: ${provider} for donor ${donorId}`);
 
-    // Redirect back to donation form with cancellation message
-    const cancelPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?cancelled=true&provider=${provider}`;
+    // Redirect to cancel page (org-specific URL from env)
+    const cancelPage = process.env.DONATION_CANCEL_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?cancelled=true&provider=${provider}`;
     res.redirect(cancelPage);
   } catch (error) {
     console.error('Error handling payment cancellation:', error);
