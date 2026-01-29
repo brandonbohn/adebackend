@@ -148,10 +148,27 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                 });
             }
             
+            // Generate payment redirect if payment method provided
+            let paymentRedirect = null;
+            if (paymentMethod) {
+                paymentRedirect = generatePaymentRedirect(
+                    paymentMethod,
+                    amount,
+                    currency || 'USD',
+                    existingDonor._id,
+                    existingDonor.email,
+                    existingDonor.name
+                );
+            }
+
             res.status(201).json({ 
+                success: true,
                 message: 'Donation added to existing donor', 
                 donor: existingDonor,
-                donation: newDonation 
+                donation: newDonation,
+                redirect: !!paymentRedirect,
+                redirectUrl: paymentRedirect?.url,
+                paymentLink: paymentRedirect?.url
             });
         } else {
             // Create new donor
@@ -199,10 +216,27 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                 });
             }
 
+            // Generate payment redirect if payment method provided
+            let paymentRedirect = null;
+            if (paymentMethod) {
+                paymentRedirect = generatePaymentRedirect(
+                    paymentMethod,
+                    amount,
+                    currency || 'USD',
+                    newDonor._id,
+                    newDonor.email,
+                    newDonor.name
+                );
+            }
+
             res.status(201).json({ 
+                success: true,
                 message: 'New donor added successfully', 
                 donor: newDonor,
-                donation: newDonation 
+                donation: newDonation,
+                redirect: !!paymentRedirect,
+                redirectUrl: paymentRedirect?.url,
+                paymentLink: paymentRedirect?.url
             });
         }
     } catch (error) {
@@ -210,9 +244,40 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Error details:', errorMessage);
         res.status(500).json({ 
+            success: false,
             message: 'Internal server error',
             error: errorMessage
         });
+    }
+}
+
+function generatePaymentRedirect(
+    paymentMethod: string,
+    amount: number,
+    currency: string,
+    donorId: string,
+    email?: string,
+    name?: string
+): { url: string } | null {
+    const baseUrl = process.env.PAYMENT_REDIRECT_BASE || 'https://adebackend.onrender.com';
+    
+    switch (paymentMethod.toLowerCase()) {
+        case 'paypal':
+            // Generate PayPal checkout URL
+            // This would typically redirect to PayPal's hosted checkout
+            return {
+                url: `${baseUrl}/api/payments/process-payment?provider=paypal&amount=${amount}&currency=${currency}&donorId=${donorId}`
+            };
+        case 'flutterwave':
+            return {
+                url: `${baseUrl}/api/payments/process-payment?provider=flutterwave&amount=${amount}&currency=${currency}&donorId=${donorId}&email=${email}`
+            };
+        case 'mpesa':
+            return {
+                url: `${baseUrl}/api/payments/process-payment?provider=mpesa&amount=${amount}&currency=${currency}&donorId=${donorId}`
+            };
+        default:
+            return null;
     }
 }
 
