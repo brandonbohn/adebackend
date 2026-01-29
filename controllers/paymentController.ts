@@ -141,28 +141,10 @@ function generatePayPalCheckout(
   successUrl: string,
   cancelUrl: string
 ): string {
-  // PayPal checkout URL format
-  // This uses the standard PayPal checkout flow
-  // In production, use PayPal SDK to create orders server-side
-
-  const params = new URLSearchParams({
-    cmd: '_xclick',
-    business: process.env.PAYPAL_EMAIL || 'adefoundation@example.com',
-    item_name: 'ADE Donation - Support Girls in Kibera',
-    item_number: donorId,
-    amount,
-    currency_code: currency,
-    first_name: name.split(' ')[0],
-    last_name: name.split(' ').slice(1).join(' '),
-    payer_email: email,
-    notify_url: `${process.env.API_URL || 'https://adebackend.onrender.com'}/api/payments/webhook/paypal`,
-    return: successUrl,
-    cancel_return: cancelUrl,
-    no_shipping: '2',
-    rm: '2'
-  });
-
-  return `https://www.paypal.com/cgi-bin/webscr?${params.toString()}`;
+  // TODO: Implement real PayPal SDK integration
+  // For now, redirect to PayPal homepage for testing
+  console.log(`💳 PayPal checkout: $${amount} ${currency} from ${email} (donor: ${donorId})`);
+  return 'https://www.paypal.com';
 }
 
 /**
@@ -178,27 +160,10 @@ function generateFlutterwaveCheckout(
   successUrl: string,
   cancelUrl: string
 ): string {
-  // Flutterwave embedded payment form
-  // This generates the checkout page URL
-  
-  const amountInCents = Math.round(parseFloat(amount) * 100);
-  
-  const params = new URLSearchParams({
-    public_key: process.env.FLUTTERWAVE_PUBLIC_KEY || 'test_key',
-    tx_ref: `adef-${donorId}-${Date.now()}`,
-    amount,
-    currency,
-    customer_email: email,
-    customer_name: name,
-    customer_phone: phone,
-    title: 'ADE Organization Donation',
-    description: 'Support education for girls in Kibera',
-    redirect_url: successUrl,
-    // meta data
-    meta_donor_id: donorId
-  });
-
-  return `https://checkout.flutterwave.com/pay/${process.env.FLUTTERWAVE_PUBLIC_KEY || 'test_key'}?${params.toString()}`;
+  // TODO: Implement real Flutterwave SDK integration
+  // For now, redirect to Flutterwave homepage for testing
+  console.log(`💳 Flutterwave checkout: ${currency} ${amount} from ${email} (donor: ${donorId})`);
+  return 'https://www.flutterwave.com';
 }
 
 /**
@@ -212,20 +177,10 @@ function generateMpesaCheckout(
   successUrl: string,
   cancelUrl: string
 ): string {
-  // M-Pesa STK Push / Lipa Na M-Pesa Online
-  // This would typically initiate an STK push prompt
-  // For now, return a redirect to the STK push endpoint
-  
-  const params = new URLSearchParams({
-    amount,
-    phone_number: phone,
-    donor_id: donorId,
-    currency,
-    callback_url: `${process.env.API_URL || 'https://adebackend.onrender.com'}/api/payments/webhook/mpesa`,
-    return_url: successUrl
-  });
-
-  return `${process.env.API_URL || 'https://adebackend.onrender.com'}/api/payments/mpesa-stk-push?${params.toString()}`;
+  // TODO: Implement real M-Pesa (Safaricom) STK Push integration
+  // For now, redirect to M-Pesa homepage for testing
+  console.log(`💳 M-Pesa checkout: ${currency} ${amount} to ${phone} (donor: ${donorId})`);
+  return 'https://www.safaricom.co.ke/personal/m-pesa';
 }
 
 /**
