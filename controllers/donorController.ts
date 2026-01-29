@@ -259,7 +259,7 @@ function generatePaymentRedirect(
     email?: string,
     name?: string
 ): { url: string } | null {
-    const baseUrl = process.env.API_URL || 'http://localhost:8080';
+    const baseUrl = process.env.API_URL || 'https://adebackend.onrender.com';
     
     const params = new URLSearchParams({
         provider: paymentMethod.toLowerCase(),

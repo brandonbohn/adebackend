@@ -158,7 +158,7 @@ function generatePayPalCheckout(
     first_name: name.split(' ')[0],
     last_name: name.split(' ').slice(1).join(' '),
     payer_email: email,
-    notify_url: `${process.env.API_URL || 'http://localhost:8080'}/api/payments/webhook/paypal`,
+    notify_url: `${process.env.API_URL || 'https://adebackend.onrender.com'}/api/payments/webhook/paypal`,
     return: successUrl,
     cancel_return: cancelUrl,
     no_shipping: '2',
@@ -224,11 +224,11 @@ function generateMpesaCheckout(
     phone_number: phone,
     donor_id: donorId,
     currency,
-    callback_url: `${process.env.API_URL || 'http://localhost:8080'}/api/payments/webhook/mpesa`,
+    callback_url: `${process.env.API_URL || 'https://adebackend.onrender.com'}/api/payments/webhook/mpesa`,
     return_url: successUrl
   });
 
-  return `${process.env.API_URL || 'http://localhost:8080'}/api/payments/mpesa-stk-push?${params.toString()}`;
+  return `${process.env.API_URL || 'https://adebackend.onrender.com'}/api/payments/mpesa-stk-push?${params.toString()}`;
 }
 
 /**
