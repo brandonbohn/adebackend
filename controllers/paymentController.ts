@@ -75,12 +75,8 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
 
     console.log(`💳 Generating ${provider} checkout for donor ${donorId}, amount: ${amount} ${currency}`);
 
-    res.json({
-      success: true,
-      provider,
-      checkoutUrl,
-      redirectUrl: checkoutUrl
-    });
+    // Redirect directly to the payment provider (browser-friendly)
+    return res.redirect(checkoutUrl);
   } catch (error) {
     console.error('Error generating checkout URL:', error);
     res.status(500).json({
