@@ -81,12 +81,25 @@ function writeDonations(donations: Donation[]): void {
 
 export async function addDonor(req: Request, res: Response): Promise<void> {
     try {
-        const { name, amount, currency, country, message, paymentMethod, transactionId, email } = req.body;
+        console.log('📥 Donation submission received:', JSON.stringify(req.body, null, 2));
+        let { name, amount, currency, country, message, paymentMethod, transactionId, email } = req.body;
+        
+        // Handle firstName/lastName format from donation form
+        if (!name && (req.body.firstName || req.body.lastName)) {
+            name = `${req.body.firstName || ''} ${req.body.lastName || ''}`.trim();
+            email = req.body.email || email;
+            country = req.body.country || 'Not specified';
+        }
         
         // Validation based on IDonor model
-        if (!name || !amount || !country) {
-            res.status(400).json({ message: 'Missing required fields: name, amount, country' });
+        if (!name || !amount) {
+            res.status(400).json({ message: 'Missing required fields: name, amount' });
             return;
+        }
+        
+        // Set default country if not provided
+        if (!country) {
+            country = 'Not specified';
         }
 
         const donors = readDonors();
@@ -194,7 +207,12 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
         }
     } catch (error) {
         console.error('Error adding donor:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Error details:', errorMessage);
+        res.status(500).json({ 
+            message: 'Internal server error',
+            error: errorMessage
+        });
     }
 }
 
