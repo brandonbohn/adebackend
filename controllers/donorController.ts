@@ -149,9 +149,8 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             }
             
             // Generate payment redirect if payment method provided
-            let paymentRedirect = null;
             if (paymentMethod) {
-                paymentRedirect = generatePaymentRedirect(
+                const paymentRedirect = generatePaymentRedirect(
                     paymentMethod,
                     amount,
                     currency || 'USD',
@@ -159,16 +158,16 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                     existingDonor.email,
                     existingDonor.name
                 );
+                // Redirect directly to payment provider
+                return res.redirect(paymentRedirect.url);
             }
 
+            // No payment method means just return success (unusual but supported)
             res.status(201).json({ 
                 success: true,
                 message: 'Donation added to existing donor', 
                 donor: existingDonor,
-                donation: newDonation,
-                redirect: !!paymentRedirect,
-                redirectUrl: paymentRedirect?.url,
-                paymentLink: paymentRedirect?.url
+                donation: newDonation
             });
         } else {
             // Create new donor
@@ -217,9 +216,8 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             }
 
             // Generate payment redirect if payment method provided
-            let paymentRedirect = null;
             if (paymentMethod) {
-                paymentRedirect = generatePaymentRedirect(
+                const paymentRedirect = generatePaymentRedirect(
                     paymentMethod,
                     amount,
                     currency || 'USD',
@@ -227,16 +225,16 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                     newDonor.email,
                     newDonor.name
                 );
+                // Redirect directly to payment provider
+                return res.redirect(paymentRedirect.url);
             }
 
+            // No payment method means just return success (unusual but supported)
             res.status(201).json({ 
                 success: true,
                 message: 'New donor added successfully', 
                 donor: newDonor,
-                donation: newDonation,
-                redirect: !!paymentRedirect,
-                redirectUrl: paymentRedirect?.url,
-                paymentLink: paymentRedirect?.url
+                donation: newDonation
             });
         }
     } catch (error) {
