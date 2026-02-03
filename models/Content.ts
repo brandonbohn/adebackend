@@ -1,21 +1,16 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-export interface IContent extends Document {
-  title: string;
-  body: string;
-  images: string[]; // URLs or file paths
-  section: string; // e.g., 'home', 'about', 'donate'
-  createdAt: Date;
-  updatedAt: Date;
+export interface Content {
+  key: string;
+  data: any;
+  updatedAt?: Date;
 }
 
-const ContentSchema = new Schema<IContent>({
-  title: { type: String, required: true },
-  body: { type: String, required: true },
-  images: { type: [String], default: [] },
-  section: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
+const ContentSchema = new Schema<Content>({
+  key: { type: String, required: true, unique: true },
+  data: { type: Schema.Types.Mixed, required: true },
   updatedAt: { type: Date, default: Date.now }
 });
 
-export const ContentModel = mongoose.model<IContent>('Content', ContentSchema);
+const ContentModel = mongoose.model<Content>('Content', ContentSchema);
+export default ContentModel;

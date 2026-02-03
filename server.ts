@@ -1,16 +1,20 @@
 
 import express, { Request, Response } from 'express';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import mongoose from 'mongoose';
 import contentRoutes from './routes/contentRoutes';
 import donorRoutes from './routes/donorroutes';
+import donationRoutes from './routes/donationroutes';
 import volunteerRoutes from './routes/volunteerRoutes';
 import contactRoutes from './routes/contactRoutes';
 import adminRoutes from './routes/adminRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
+dotenv.config();
 console.log('Node version:', process.version);
 console.log('Environment:', process.env.NODE_ENV || 'development');
 console.log('PORT:', process.env.PORT || '8080');
@@ -68,6 +72,10 @@ console.log('Loading donor routes...');
 app.use('/api/donors', donorRoutes);
 console.log('Donor routes loaded');
 
+console.log('Loading donation routes...');
+app.use('/api/donations', donationRoutes);
+console.log('Donation routes loaded');
+
 console.log('Loading payment routes...');
 app.use('/api/payments', paymentRoutes);
 console.log('Payment routes loaded');
@@ -110,11 +118,26 @@ console.log('Admin routes loaded');
 const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✓ Server successfully started on port ${PORT}`);
-  console.log(`✓ Server accessible at http://0.0.0.0:${PORT}`);
-  console.log('=== SERVER READY ===');
-});
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error('MONGO_URI is not set. Server will not start.');
+  process.exit(1);
+}
+
+mongoose
+  .connect(mongoUri)
+  .then(() => {
+    console.log('✓ MongoDB connected');
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`✓ Server successfully started on port ${PORT}`);
+      console.log(`✓ Server accessible at http://0.0.0.0:${PORT}`);
+      console.log('=== SERVER READY ===');
+    });
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
 
 
 // Health check and static file check endpoints

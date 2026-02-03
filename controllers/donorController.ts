@@ -1,88 +1,33 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
 import { randomUUID } from 'crypto';
-import { sendEmail, generateDonationReceipt } from '../utils/emailservice';
+import DonorsModel from '../models/donor';
+
+
+
+
 
 // Based on your donor.ts model
-interface Donor {
-    _id: string;
+interface Donors {
+    _id?: string;
     name: string;
-    amount: number;
     country: string;
-    donationDate: string;
-    donations: Donation[];
+    contactid: string;
+    pastDonations?: any[];
+    source?: string;
+    notes?: string;
     email?: string;
     phone?: string;
-    status?: string;
-    source?: string;
-    contactId?: string;
-    notes?: string;
 }
 
-interface Donation {
-    donorId: string;
-    amount: number;
-    date: string;
-    message?: string;
-    currency?: string;
-    paymentMethod?: string;
-    transactionId?: string;
-}
-
-const donorsFilePath = path.join(__dirname, '../json/donors.json');
-const donationsFilePath = path.join(__dirname, '../json/donations.json');
-
-function readDonors(): Donor[] {
-    try {
-        if (!fs.existsSync(donorsFilePath)) {
-            fs.writeFileSync(donorsFilePath, JSON.stringify([], null, 2));
-            return [];
-        }
-        const data = fs.readFileSync(donorsFilePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading donors file:', error);
-        return [];
-    }
-}
-
-function writeDonors(donors: Donor[]): void {
-    try {
-        fs.writeFileSync(donorsFilePath, JSON.stringify(donors, null, 2));
-    } catch (error) {
-        console.error('Error writing donors file:', error);
-        throw error;
-    }
-}
-
-function readDonations(): Donation[] {
-    try {
-        if (!fs.existsSync(donationsFilePath)) {
-            fs.writeFileSync(donationsFilePath, JSON.stringify([], null, 2));
-            return [];
-        }
-        const data = fs.readFileSync(donationsFilePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading donations file:', error);
-        return [];
-    }
-}
-
-function writeDonations(donations: Donation[]): void {
-    try {
-        fs.writeFileSync(donationsFilePath, JSON.stringify(donations, null, 2));
-    } catch (error) {
-        console.error('Error writing donations file:', error);
-        throw error;
-    }
-}
+const findAllDonors = async () => DonorsModel.find();
+const createDonor = async (doc: Partial<Donors>) => DonorsModel.create(doc);
+const findDonorById = async (id: string) => DonorsModel.findById(id);
+const deleteDonorById = async (id: string) => DonorsModel.findByIdAndDelete(id);
 
 export async function addDonor(req: Request, res: Response): Promise<void> {
     try {
-        console.log('📥 Donation submission received:', JSON.stringify(req.body, null, 2));
-        let { name, amount, currency, country, message, paymentMethod, transactionId, email } = req.body;
+        console.log('📥 Donor submission received:', JSON.stringify(req.body, null, 2));
+        let { name, country, email, phone, source, notes, contactid } = req.body;
         
         // Handle firstName/lastName format from donation form
         if (!name && (req.body.firstName || req.body.lastName)) {
@@ -91,9 +36,9 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             country = req.body.country || 'Not specified';
         }
         
-        // Validation based on IDonor model
-        if (!name || !amount) {
-            res.status(400).json({ message: 'Missing required fields: name, amount' });
+        // Validation based on Donor model
+        if (!name) {
+            res.status(400).json({ message: 'Missing required field: name' });
             return;
         }
         
@@ -102,153 +47,47 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             country = 'Not specified';
         }
 
-        const donors = readDonors();
-        const donations = readDonations();
-        
-        // Check if donor already exists by name (you might want email instead)
-        let existingDonor = donors.find(d => d.name.toLowerCase() === name.toLowerCase());
-        
-        if (existingDonor) {
-            // Update existing donor
-            const newDonation: Donation = {
-                donorId: existingDonor._id,
-                amount,
-                date: new Date().toISOString(),
-                message,
-                currency,
-                paymentMethod,
-                transactionId
-            };
-            
-            existingDonor.amount += amount; // Update total amount
-            existingDonor.donations.push(newDonation);
-            donations.push(newDonation);
+        const resolvedContactId = contactid || randomUUID();
 
-        if (email && !existingDonor.email) {
+        // Check if donor already exists by name (you might want email instead)
+        let existingDonor = await DonorsModel.findOne({ name });
+
+        if (existingDonor) {
+            if (email && !existingDonor.email) {
                 existingDonor.email = email;
             }
-            
-            writeDonors(donors);
-            writeDonations(donations);
-            
-            // Send receipt email if donor has email
-            if (existingDonor.email) {
-                const receiptHtml = generateDonationReceipt(
-                    existingDonor.name,
-                    amount,
-                    newDonation.date,
-                    transactionId || 'N/A',
-                    currency || 'USD'
-                );
-                await sendEmail({
-                    to: existingDonor.email,
-                    subject: 'Your Donation Receipt - ADE Organization',
-                    text: `Dear ${existingDonor.name}, Thank you for your donation of ${currency || 'USD'} ${amount}. Transaction ID: ${transactionId || 'N/A'}`,
-                    html: receiptHtml
-                });
+            if (phone && !existingDonor.phone) {
+                existingDonor.phone = phone;
             }
-            
-            // Generate payment redirect if payment method provided
-            if (paymentMethod) {
-                const paymentRedirect = generatePaymentRedirect(
-                    paymentMethod,
-                    amount,
-                    currency || 'USD',
-                    existingDonor._id,
-                    existingDonor.email,
-                    existingDonor.name
-                );
-                // Return JSON with redirect URL so frontend can navigate
-                res.status(201).json({ 
-                    success: true,
-                    message: 'Donation added to existing donor', 
-                    donor: existingDonor,
-                    donation: newDonation,
-                    paymentUrl: paymentRedirect.url
-                });
-                return;
+            if (source && !existingDonor.source) {
+                existingDonor.source = source;
+            }
+            if (notes && !existingDonor.notes) {
+                existingDonor.notes = notes;
             }
 
-            // No payment method means just return success (unusual but supported)
-            res.status(201).json({ 
+            await existingDonor.save();
+
+            res.status(200).json({
                 success: true,
-                message: 'Donation added to existing donor', 
-                donor: existingDonor,
-                donation: newDonation
+                message: 'Donor already exists',
+                donor: existingDonor
             });
         } else {
-            // Create new donor
-            const donorId = randomUUID();
-            const newDonation: Donation = {
-                donorId,
-                amount,
-                date: new Date().toISOString(),
-                message,
-                currency,
-                paymentMethod,
-                transactionId
-            };
-            
-            const newDonor: Donor = {
-                _id: donorId,
+            const newDonor = await createDonor({
                 name,
-                amount,
                 country,
-                donationDate: new Date().toISOString(),
-                donations: [newDonation],
-                email: email || undefined
-            };
+                contactid: resolvedContactId,
+                email: email || undefined,
+                phone: phone || undefined,
+                source: source || undefined,
+                notes: notes || undefined
+            });
 
-            donors.push(newDonor);
-            donations.push(newDonation);
-            
-            writeDonors(donors);
-            writeDonations(donations);
-
-            // Send receipt email if donor provided email
-            if (email) {
-                const receiptHtml = generateDonationReceipt(
-                    name,
-                    amount,
-                    newDonation.date,
-                    transactionId || 'N/A',
-                    currency || 'USD'
-                );
-                await sendEmail({
-                    to: email,
-                    subject: 'Your Donation Receipt - ADE Organization',
-                    text: `Dear ${name}, Thank you for your donation of ${currency || 'USD'} ${amount}. Transaction ID: ${transactionId || 'N/A'}`,
-                    html: receiptHtml
-                });
-            }
-
-            // Generate payment redirect if payment method provided
-            if (paymentMethod) {
-                const paymentRedirect = generatePaymentRedirect(
-                    paymentMethod,
-                    amount,
-                    currency || 'USD',
-                    newDonor._id,
-                    newDonor.email,
-                    newDonor.name
-                );
-                // Return JSON with redirect URL so frontend can navigate
-                res.status(201).json({ 
-                    success: true,
-                    message: 'New donor added successfully', 
-                    donor: newDonor,
-                    donation: newDonation,
-                    paymentUrl: paymentRedirect.url
-                });
-                return;
-            }
-
-            // No payment method means just return success (unusual but supported)
-            res.status(201).json({ 
+            res.status(201).json({
                 success: true,
-                message: 'New donor added successfully', 
-                donor: newDonor,
-                donation: newDonation
+                message: 'New donor added successfully',
+                donor: newDonor
             });
         }
     } catch (error) {
@@ -263,40 +102,9 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
     }
 }
 
-function generatePaymentRedirect(
-    paymentMethod: string,
-    amount: number,
-    currency: string,
-    donorId: string,
-    email?: string,
-    name?: string
-): { url: string } | null {
-    const baseUrl = process.env.API_URL || 'https://adebackend.onrender.com';
-    
-    const params = new URLSearchParams({
-        provider: paymentMethod.toLowerCase(),
-        amount: amount.toString(),
-        currency: currency || 'USD',
-        donorId,
-        ...(email && { email }),
-        ...(name && { name })
-    });
-
-    switch (paymentMethod.toLowerCase()) {
-        case 'paypal':
-        case 'flutterwave':
-        case 'mpesa':
-            return {
-                url: `${baseUrl}/api/payments/checkout?${params.toString()}`
-            };
-        default:
-            return null;
-    }
-}
-
 export async function getAllDonors(req: Request, res: Response): Promise<void> {
     try {
-        const donors = readDonors();
+        const donors = await findAllDonors();
         res.status(200).json(donors);
     } catch (error) {
         console.error('Error getting donors:', error);
@@ -307,8 +115,7 @@ export async function getAllDonors(req: Request, res: Response): Promise<void> {
 export async function getDonorById(req: Request, res: Response): Promise<void> {
     try {
         const { id } = req.params;
-        const donors = readDonors();
-        const donor = donors.find(d => d._id === id);
+        const donor = await findDonorById(id);
 
         if (!donor) {
             res.status(404).json({ message: 'Donor not found' });
@@ -325,70 +132,16 @@ export async function getDonorById(req: Request, res: Response): Promise<void> {
 export async function deleteDonor(req: Request, res: Response): Promise<void> {
     try {
         const donorId = req.params.id;
-        const donors = readDonors();
-        const donations = readDonations();
-        
-        const filteredDonors = donors.filter(d => d._id !== donorId);
-        
-        if (donors.length === filteredDonors.length) {
+        const donor = await deleteDonorById(donorId);
+
+        if (!donor) {
             res.status(404).json({ message: 'Donor not found' });
             return;
         }
-        
-        // Also remove associated donations
-        const filteredDonations = donations.filter(d => d.donorId !== donorId);
-        
-        writeDonors(filteredDonors);
-        writeDonations(filteredDonations);
-        
-        res.status(200).json({ message: 'Donor and associated donations deleted successfully' });
+
+        res.status(200).json({ message: 'Donor deleted successfully' });
     } catch (error) {
         console.error('Error deleting donor:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-}
-
-export async function getAllDonations(req: Request, res: Response): Promise<void> {
-    try {
-        const donations = readDonations();
-        res.status(200).json(donations);
-    } catch (error) {
-        console.error('Error fetching donations:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-}
-
-export async function createDonation(req: Request, res: Response): Promise<void> {
-    try {
-        const { donorId, amount, currency, message, paymentMethod, transactionId } = req.body;
-        
-        if (!donorId || !amount) {
-            res.status(400).json({ message: 'Missing required fields: donorId, amount' });
-            return;
-        }
-
-        const donations = readDonations();
-        const newDonation: Donation = {
-            donorId,
-            amount,
-            date: new Date().toISOString(),
-            message,
-            currency: currency || 'USD',
-            paymentMethod: paymentMethod || 'unknown',
-            transactionId: transactionId || `txn-${randomUUID()}`
-        };
-
-        donations.push(newDonation);
-        writeDonations(donations);
-        
-        console.log(`✓ Donation created: ${newDonation.transactionId} from donor ${donorId}`);
-
-        res.status(201).json({ 
-            message: 'Donation recorded successfully',
-            donation: newDonation 
-        });
-    } catch (error) {
-        console.error('Error creating donation:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }

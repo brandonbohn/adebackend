@@ -1,34 +1,36 @@
-import { ICart } from './Cart1';
-import mongoose, { Schema, Document } from 'mongoose';
+
+import mongoose, { Schema,} from 'mongoose';
 
 
-export interface IDonor extends Document {
+export interface Donors {
+
+    email?: string;
+    phone?: string;
+    contactid: string;    
     name: string;
-    amount: number;
     country: string;
-    donationDate: Date;
-    donations: any[];
+    pastDonations?: any[];
+    source?: string;
+    notes?: string;
+
+}    
+    
    
-}
-const DonorSchema: Schema = new Schema({
+const DonorsSchema: Schema = new Schema({
     name: { type: String, required: true },
-    amount: { type: Number, required: true },
-
     country: { type: String, required: true },
-    donationDate: { type: Date, default: Date.now },
-    donations: { type: [Schema.Types.Mixed], default: [] },
-});
+    contactid: { type: String, required: true },
+    pastDonations: { type: [Schema.Types.Mixed], default: [] },
+    source: { type: String },
+    notes: { type: String },
+    email: { type: String },
+     phone: { type: String },
+   });
 
-export const DonorModel = mongoose.model<IDonor>('Donor', DonorSchema);
+export const DonorsModel = mongoose.model<Donors>('Donors', DonorsSchema);
 
 
     
 
-    
-export interface Donation {
-    donorId: mongoose.Types.ObjectId;
-    amount: number;
-    date: Date;
-    message?: string;
-    }
+export default DonorsModel;
     

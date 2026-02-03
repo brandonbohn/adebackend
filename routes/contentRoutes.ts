@@ -1,20 +1,19 @@
 import { Router, Request, Response } from 'express';
-import { createContent, getAllContent, getContentBySection, updateContent, deleteContent } from '../controllers/contentController';
-import fs from 'fs';
-import path from 'path';
+import { createContent, getAllContent, getContentBySection, updateContent, deleteContent, getAdedata } from '../controllers/contentController';
+import ContentModel from '../models/Content';
 
 const router = Router();
 
-// GET donation form configuration
-router.get('/donationform', (req: Request, res: Response) => {
+// GET donation form configuration from Mongo
+router.get('/donationform', async (req: Request, res: Response) => {
     try {
-        const formData = fs.readFileSync(
-            path.join(__dirname, '../json/donationform.json'),
-            'utf8'
-        );
+        const doc = await ContentModel.findOne({ key: 'donationForm' });
+        if (!doc) {
+            return res.status(200).json({ fields: [], version: 1 });
+        }
         res.setHeader('Cache-Control', 'public, max-age=3600');
         res.setHeader('Content-Type', 'application/json');
-        res.json(JSON.parse(formData));
+        res.json(doc.data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to load donation form configuration' });
     }
@@ -33,6 +32,15 @@ router.get('/', async (req: Request, res: Response) => {
         await getAllContent(req, res);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch content' });
+    }
+});
+
+// Full site snapshot: Mongo if present, else JSON fallback
+router.get('/adedata', async (req: Request, res: Response) => {
+    try {
+        await getAdedata(req, res);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch adedata' });
     }
 });
 

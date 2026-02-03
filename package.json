@@ -10,7 +10,9 @@
   "scripts": {
     "build": "tsc --skipLibCheck && mkdir -p dist/json && node scripts/copyJsonFiles.js",
     "start": "node dist/server.js",
-    "dev": "npm run build && npm start"
+    "dev": "npm run build && npm start",
+    "seed": "node scripts/seed.js",
+    "postbuild": "echo Postbuild complete"
   },
   "dependencies": {
     "@types/stripe": "^8.0.416",

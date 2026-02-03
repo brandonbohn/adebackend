@@ -21,5 +21,5 @@
     "server.ts",
     "database.ts",
     "index.ts"
-  ]
+, "models/donor.ts"  ]
 }

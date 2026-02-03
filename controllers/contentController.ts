@@ -1,97 +1,31 @@
 import { Request, Response } from 'express';
-// import { ContentModel } from '../models/Content';
-import fs from 'fs';
-import path from 'path';
+import ContentModel from '../models/Content';
+import mongoose from 'mongoose';
 
 export async function createContent(req: Request, res: Response): Promise<void> {
   try {
-    const dataPath = path.join(__dirname, '../json/adedata.json');
-    console.log('[createContent] Data path:', dataPath);
-    console.log('[createContent] Received payload:', JSON.stringify(req.body, null, 2));
-    if (!fs.existsSync(dataPath)) {
-      console.error('adedata.json not found at', dataPath);
-      res.status(500).json({ error: 'adedata.json not found', path: dataPath });
+    const { key, data, section } = req.body;
+    const k = key || section; // support old 'section' name
+    if (!k || data === undefined) {
+      res.status(400).json({ error: 'Missing key/section or data' });
       return;
     }
-    const raw = fs.readFileSync(dataPath, 'utf-8');
-    const data = JSON.parse(raw);
-    if (!Array.isArray(data) || !data[0] || !data[0].sectionsData) {
-      console.error('adedata.json format error:', data);
-      res.status(500).json({ error: 'adedata.json format error', data });
-      return;
-    }
-    const main = data[0];
-    let section = req.body.section;
-    if (typeof section === 'string') section = section.trim();
-    const { section: _section, ...sectionData } = req.body;
-    const rootKeys = Object.keys(main).filter(k => k !== 'sectionsData');
-    const sectionsDataKeys = main.sectionsData ? Object.keys(main.sectionsData) : [];
-    console.log('[createContent] Section to update:', section);
-    console.log('[createContent] Root-level keys:', rootKeys);
-    console.log('[createContent] sectionsData keys:', sectionsDataKeys);
-    let updated = false;
-    if (section) {
-      // Try updating in sectionsData first (case-insensitive)
-      const foundSectionDataKey = sectionsDataKeys.find(k => k.toLowerCase() === section.toLowerCase());
-      if (main.sectionsData && foundSectionDataKey) {
-        main.sectionsData[foundSectionDataKey] = {
-          ...main.sectionsData[foundSectionDataKey],
-          ...sectionData
-        };
-        updated = true;
-      } else {
-        // Try updating root-level section (case-insensitive)
-        const foundRootKey = rootKeys.find(k => k.toLowerCase() === section.toLowerCase());
-        if (foundRootKey) {
-          // If the root key is an object, merge; otherwise, replace
-          if (typeof main[foundRootKey] === 'object' && !Array.isArray(main[foundRootKey]) && main[foundRootKey] !== null) {
-            main[foundRootKey] = {
-              ...main[foundRootKey],
-              ...sectionData
-            };
-          } else {
-            // For arrays, primitives, or if you want to fully replace, use req.body.value or req.body itself
-            main[foundRootKey] = req.body.value !== undefined ? req.body.value : req.body;
-          }
-          updated = true;
-        }
-      }
-    }
-    if (updated) {
-      try {
-        fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), 'utf-8');
-        console.log(`[createContent] Successfully wrote to adedata.json. Updated section '${section}':`, JSON.stringify(main[section] || (main.sectionsData && main.sectionsData[section]), null, 2));
-        res.status(201).json({ message: 'Content updated', data: main[section] || (main.sectionsData && main.sectionsData[section]) });
-      } catch (writeErr) {
-        console.error('[createContent] Failed to write adedata.json:', writeErr);
-        res.status(500).json({ error: 'Failed to write adedata.json', details: writeErr, path: dataPath });
-      }
-    } else {
-      const availableSections = [...sectionsDataKeys, ...rootKeys];
-      console.error('[createContent] Section not found in JSON:', section, 'Available sections:', availableSections);
-      res.status(400).json({ error: 'Section not found in JSON', section, availableSections });
-    }
+    const updated = await ContentModel.findOneAndUpdate(
+      { key: k },
+      { data, updatedAt: new Date() },
+      { upsert: true, new: true }
+    );
+    res.status(201).json({ message: 'Content upserted', content: updated });
   } catch (error) {
-    console.error('[createContent] General error:', error, 'Request body:', req.body);
-    res.status(500).json({ error: 'Failed to create content', details: error });
+    res.status(500).json({ error: 'Failed to save content', details: error });
   }
 }
 
 
 export async function getAllContent(req: Request, res: Response): Promise<void> {
   try {
-    const dataPath = path.join(__dirname, '../json/adedata.json');
-    if (!fs.existsSync(dataPath)) {
-      res.status(500).json({ error: 'adedata.json not found', path: dataPath });
-      return;
-    }
-    const raw = fs.readFileSync(dataPath, 'utf-8');
-    const data = JSON.parse(raw);
-    if (!Array.isArray(data) || !data[0] || !data[0].sectionsData) {
-        res.status(500).json({ error: 'adedata.json format error', data });
-        return;
-      }
-      res.json(data[0]);
+    const docs = await ContentModel.find();
+    res.json(docs);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch content', details: error });
   }
@@ -100,35 +34,77 @@ export async function getAllContent(req: Request, res: Response): Promise<void> 
 
 export async function getContentBySection(req: Request, res: Response): Promise<void> {
   try {
-    const dataPath = path.join(__dirname, '../json/adedata.json');
-    if (!fs.existsSync(dataPath)) {
-      res.status(500).json({ error: 'adedata.json not found', path: dataPath });
-      return;
-    }
-    const raw = fs.readFileSync(dataPath, 'utf-8');
-    const data = JSON.parse(raw);
-    if (!Array.isArray(data) || !data[0] || !data[0].sectionsData) {
-      res.status(500).json({ error: 'adedata.json format error', data });
-      return;
-    }
     const section = req.params.section;
-    const sectionData = data[0].sectionsData[section];
-    if (!sectionData) {
+    const doc = await ContentModel.findOne({ key: section });
+    if (!doc) {
       res.status(404).json({ error: 'Section not found', section });
       return;
     }
-    res.json(sectionData);
+    res.json(doc.data);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch content', details: error });
   }
 }
 
+// New: Return full adedata snapshot from Mongo if present; fallback to JSON file
+export async function getAdedata(req: Request, res: Response): Promise<void> {
+  try {
+    // Try Mongo 'site' collection first
+    const coll = mongoose.connection.collection('site');
+    const doc = await coll.findOne({}, { sort: { insertedAt: -1 } });
+    if (doc && doc.data) {
+      return res.json(Array.isArray(doc.data) ? doc.data[0] : doc.data);
+    }
+  } catch (e) {
+    // Ignore and fallback to file
+  }
+
+  // Fallback: read from JSON file
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const dataPath = path.join(__dirname, '../json/adedata.json');
+    if (!fs.existsSync(dataPath)) {
+      res.status(404).json({ error: 'adedata.json not found', path: dataPath });
+      return;
+    }
+    const raw = fs.readFileSync(dataPath, 'utf-8');
+    const data = JSON.parse(raw || '[]');
+    return res.json(Array.isArray(data) ? data[0] : data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to read adedata.json', details: error });
+  }
+}
+
 export async function updateContent(req: Request, res: Response): Promise<void> {
-  // Not implemented: file-based update by id
-  res.status(501).json({ error: 'Update by id not implemented in file-based backend.' });
+  try {
+    const { id } = req.params;
+    const { data } = req.body;
+    const updated = await ContentModel.findByIdAndUpdate(
+      id,
+      { data, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!updated) {
+      res.status(404).json({ error: 'Content not found' });
+      return;
+    }
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update content', details: error });
+  }
 }
 
 export async function deleteContent(req: Request, res: Response): Promise<void> {
-  // Not implemented: file-based delete by id
-  res.status(501).json({ error: 'Delete by id not implemented in file-based backend.' });
+  try {
+    const { id } = req.params;
+    const result = await ContentModel.findByIdAndDelete(id);
+    if (!result) {
+      res.status(404).json({ error: 'Content not found' });
+      return;
+    }
+    res.json({ message: 'Content deleted' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete content', details: error });
+  }
 }
