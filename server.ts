@@ -29,15 +29,10 @@ console.log('JSON middleware loaded');
 
 // Enable CORS for only the production frontend domain
 
-interface RailwayTestRequest extends Request {}
-interface RailwayTestResponse extends Response {}
-
-app.get(
-	"/_railway_test",
-	(_: RailwayTestRequest, req: RailwayTestRequest, res: RailwayTestResponse) => {
-		res.send("Welcome to the ADEF-C Backend Server");
-	}
-);
+// Simple test endpoint (compatible with any platform)
+app.get('/_railway_test', (_req: Request, res: Response) => {
+  res.status(200).json({ message: 'Welcome to the ADEF-C Backend Server' });
+});
 app.use(cors({
   origin: [
     'https://www.adekiberafoundation.org',
