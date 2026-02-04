@@ -35,12 +35,34 @@ export async function getAllContent(req: Request, res: Response): Promise<void> 
 export async function getContentBySection(req: Request, res: Response): Promise<void> {
   try {
     const section = req.params.section;
+    
+    // First try to get from Content collection (CMS items)
     const doc = await ContentModel.findOne({ key: section });
-    if (!doc) {
-      res.status(404).json({ error: 'Section not found', section });
+    if (doc) {
+      res.json(doc.data);
       return;
     }
-    res.json(doc.data);
+    
+    // If not found, check if it's a section from the site collection (sectionsData)
+    try {
+      const coll = mongoose.connection.collection('site');
+      const siteDoc = await coll.findOne({}, { sort: { insertedAt: -1 } });
+      if (siteDoc && siteDoc.data) {
+        const siteData = Array.isArray(siteDoc.data) && siteDoc.data.length > 0 ? siteDoc.data[0] : siteDoc.data;
+        const sectionsData = siteData?.sectionsData;
+        if (sectionsData && sectionsData[section]) {
+          console.log(`✓ Serving ${section} from MongoDB site collection`);
+          res.json(sectionsData[section]);
+          return;
+        }
+      }
+    } catch (e: any) {
+      console.error('Error checking site collection:', e?.message);
+    }
+    
+    // Section not found anywhere
+    res.status(404).json({ error: 'Section not found', section });
+    return;
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch content', details: error });
   }
