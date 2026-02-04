@@ -18,6 +18,18 @@ export const createVolunteer = async (req: Request, res: Response) => {
     if (volunteerData.skills && !volunteerData.interests) {
       volunteerData.interests = volunteerData.skills;
     }
+    
+    // Map frontend basedIn display values to backend enum values
+    const basedInMap: Record<string, string> = {
+      'Nairobi/Kenya': 'nairobi',
+      'Remote/International': 'remote',
+      'nairobi': 'nairobi',
+      'kenya': 'kenya',
+      'remote': 'remote'
+    };
+    if (volunteerData.basedIn && basedInMap[volunteerData.basedIn]) {
+      volunteerData.basedIn = basedInMap[volunteerData.basedIn];
+    }
 
     // Validation
     if (!volunteerData.name || volunteerData.name.trim().length < 2) {
