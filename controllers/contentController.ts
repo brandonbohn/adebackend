@@ -53,11 +53,16 @@ export async function getAdedata(req: Request, res: Response): Promise<any> {
     const coll = mongoose.connection.collection('site');
     const doc = await coll.findOne({}, { sort: { insertedAt: -1 } });
     if (doc && doc.data) {
-      res.json(Array.isArray(doc.data) ? doc.data[0] : doc.data);
+      // Return the first element if it's an array, otherwise return the data as-is
+      const responseData = Array.isArray(doc.data) && doc.data.length > 0 ? doc.data[0] : doc.data;
+      console.log('✓ Serving adedata from MongoDB site collection');
+      res.json(responseData);
       return;
     }
-  } catch (e) {
-    // Ignore and fallback to file
+    console.log('⚠ No data found in MongoDB site collection, trying fallback');
+  } catch (e: any) {
+    console.error('MongoDB site collection query error:', e?.message);
+    // Continue to fallback
   }
 
   // Fallback: read from JSON file
@@ -71,9 +76,11 @@ export async function getAdedata(req: Request, res: Response): Promise<any> {
     }
     const raw = fs.readFileSync(dataPath, 'utf-8');
     const data = JSON.parse(raw || '[]');
+    console.log('✓ Serving adedata from JSON fallback');
     res.json(Array.isArray(data) ? data[0] : data);
     return;
-  } catch (error) {
+  } catch (error: any) {
+    console.error('JSON fallback error:', error?.message);
     res.status(500).json({ error: 'Failed to read adedata.json', details: error });
   }
 }

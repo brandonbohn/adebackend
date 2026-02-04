@@ -29,7 +29,8 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-        await getAllContent(req, res);
+        // Return adedata by default for backward compatibility with frontend
+        await getAdedata(req, res);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch content' });
     }
