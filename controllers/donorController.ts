@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import DonorsModel from '../models/donor';
+import DonationModel from '../models/donations';
 import { upsertContactInfo } from '../services/contactInfoService';
 
 
@@ -27,7 +28,7 @@ const deleteDonorById = async (id: string) => DonorsModel.findByIdAndDelete(id);
 export async function addDonor(req: Request, res: Response): Promise<void> {
     try {
         console.log('📥 Donor submission received:', JSON.stringify(req.body, null, 2));
-        let { name, country, email, phone, source, notes } = req.body;
+        let { name, country, email, phone, source, notes, amount, currency, paymentMethod } = req.body;
         
         // Handle firstName/lastName format from donation form
         if (!name && (req.body.firstName || req.body.lastName)) {
@@ -69,10 +70,50 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             { upsert: true, new: true }
         );
 
+        // Create donation record if amount is provided
+        let donation = null;
+        if (amount) {
+            donation = await DonationModel.create({
+                donorid: existingDonor._id as any,
+                amount: parseFloat(amount),
+                date: new Date(),
+                donationType: 'general',
+                message: req.body.message || '',
+                currency: currency || 'USD'
+            });
+            console.log(`💰 Created donation record: ${donation._id} for ${amount} ${currency}`);
+        }
+
+        // Generate payment URL if amount and payment method provided
+        let paymentUrl = null;
+        if (amount && paymentMethod) {
+            const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
+            const provider = paymentMethod === 'paypal' ? 'paypal' 
+                           : paymentMethod === 'flutterwave' ? 'flutterwave'
+                           : paymentMethod === 'mpesa' ? 'mpesa'
+                           : 'paypal'; // default
+            
+            const params = new URLSearchParams({
+                provider,
+                amount: String(amount),
+                currency: currency || 'USD',
+                donorId: String(existingDonor._id),
+                donationId: donation ? String(donation._id) : '',
+                name,
+                email: email || '',
+                phone: phone || ''
+            });
+            
+            paymentUrl = `${apiBaseUrl}/api/payments/checkout?${params.toString()}`;
+            console.log(`💳 Generated payment URL for ${provider}: ${paymentUrl}`);
+        }
+
         res.status(200).json({
             success: true,
-            message: 'Donor upserted successfully',
-            donor: existingDonor
+            message: 'Donor and donation recorded successfully',
+            donor: existingDonor,
+            donation: donation,
+            ...(paymentUrl && { paymentUrl, redirect: true })
         });
     } catch (error) {
         console.error('Error adding donor:', error);
