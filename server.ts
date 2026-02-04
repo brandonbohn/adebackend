@@ -122,13 +122,14 @@ const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);
 
 const mongoUri = process.env.MONGO_URI;
+const mongoDbName = process.env.MONGO_DB || 'AdeBackend';
 if (!mongoUri) {
   console.error('MONGO_URI is not set. Server will not start.');
   process.exit(1);
 }
 
 mongoose
-  .connect(mongoUri, { serverSelectionTimeoutMS: 8000 })
+  .connect(mongoUri, { serverSelectionTimeoutMS: 8000, dbName: mongoDbName })
   .then(() => {
     console.log('✓ MongoDB connected');
     app.listen(PORT, '0.0.0.0', () => {
