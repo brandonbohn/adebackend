@@ -12,6 +12,7 @@
     "start": "node dist/server.js",
     "dev": "npm run build && npm start",
     "seed": "node scripts/seed.js",
+    "test:mongo": "node scripts/testMongo.js",
     "postbuild": "echo Postbuild complete"
   },
   "dependencies": {

@@ -128,7 +128,7 @@ if (!mongoUri) {
 }
 
 mongoose
-  .connect(mongoUri)
+  .connect(mongoUri, { serverSelectionTimeoutMS: 8000 })
   .then(() => {
     console.log('✓ MongoDB connected');
     app.listen(PORT, '0.0.0.0', () => {
@@ -141,6 +141,25 @@ mongoose
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
+// DB health endpoint (local verification and ops)
+app.get('/api/db/health', async (_req: Request, res: Response) => {
+  try {
+    const state = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+    let ping: any = null;
+    if (mongoose.connection.db) {
+      ping = await mongoose.connection.db.admin().ping();
+    }
+    res.json({
+      ok: true,
+      readyState: state,
+      ping,
+      host: mongoose.connection.host,
+      name: mongoose.connection.name
+    });
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: e?.message || 'unknown' });
+  }
+});
 
 
 // Health check and static file check endpoints
