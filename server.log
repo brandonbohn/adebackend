@@ -1,0 +1,28 @@
+=== SERVER STARTUP LOG ===
+Node version: v20.19.6
+Environment: development
+PORT: 3000
+Current directory: /home/nomad40/Barebohnzdevandconsulting/ADE/adebackend/dist
+=========================
+Express app created
+JSON middleware loaded
+CORS middleware loaded
+Loading content routes...
+Content routes loaded
+Loading donor routes...
+Donor routes loaded
+Loading donation routes...
+Donation routes loaded
+Loading payment routes...
+Payment routes loaded
+Loading volunteer routes...
+Volunteer routes loaded
+Loading contact routes...
+Contact routes loaded
+Loading admin routes...
+Admin routes loaded
+Attempting to bind to port 3000 on 0.0.0.0...
+✓ MongoDB connected
+✓ Server successfully started on port 3000
+✓ Server accessible at http://0.0.0.0:3000
+=== SERVER READY ===
