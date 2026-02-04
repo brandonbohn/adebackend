@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { randomUUID } from 'crypto';
 import DonorsModel from '../models/donor';
+import { upsertContactInfo } from '../services/contactInfoService';
 
 
 
@@ -19,15 +19,15 @@ interface Donors {
     phone?: string;
 }
 
-const findAllDonors = async () => DonorsModel.find();
+const findAllDonors = async () => DonorsModel.find().populate('contactid');
 const createDonor = async (doc: Partial<Donors>) => DonorsModel.create(doc);
-const findDonorById = async (id: string) => DonorsModel.findById(id);
+const findDonorById = async (id: string) => DonorsModel.findById(id).populate('contactid');
 const deleteDonorById = async (id: string) => DonorsModel.findByIdAndDelete(id);
 
 export async function addDonor(req: Request, res: Response): Promise<void> {
     try {
         console.log('📥 Donor submission received:', JSON.stringify(req.body, null, 2));
-        let { name, country, email, phone, source, notes, contactid } = req.body;
+        let { name, country, email, phone, source, notes } = req.body;
         
         // Handle firstName/lastName format from donation form
         if (!name && (req.body.firstName || req.body.lastName)) {
@@ -47,49 +47,33 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             country = 'Not specified';
         }
 
-        const resolvedContactId = contactid || randomUUID();
+        // Upsert ContactInfo by email (or phone) and use its _id as contactid
+        const contact = await upsertContactInfo({ name, email, phone, country });
 
-        // Check if donor already exists by name (you might want email instead)
-        let existingDonor = await DonorsModel.findOne({ name });
+        // Check if donor already exists by contactid
+        let existingDonor = await DonorsModel.findOneAndUpdate(
+            { contactid: contact._id as any },
+            {
+                $setOnInsert: {
+                    name,
+                    country,
+                    contactid: contact._id as any,
+                },
+                $set: {
+                    ...(email ? { email } : {}),
+                    ...(phone ? { phone } : {}),
+                    ...(source ? { source } : {}),
+                    ...(notes ? { notes } : {}),
+                },
+            },
+            { upsert: true, new: true }
+        );
 
-        if (existingDonor) {
-            if (email && !existingDonor.email) {
-                existingDonor.email = email;
-            }
-            if (phone && !existingDonor.phone) {
-                existingDonor.phone = phone;
-            }
-            if (source && !existingDonor.source) {
-                existingDonor.source = source;
-            }
-            if (notes && !existingDonor.notes) {
-                existingDonor.notes = notes;
-            }
-
-            await existingDonor.save();
-
-            res.status(200).json({
-                success: true,
-                message: 'Donor already exists',
-                donor: existingDonor
-            });
-        } else {
-            const newDonor = await createDonor({
-                name,
-                country,
-                contactid: resolvedContactId,
-                email: email || undefined,
-                phone: phone || undefined,
-                source: source || undefined,
-                notes: notes || undefined
-            });
-
-            res.status(201).json({
-                success: true,
-                message: 'New donor added successfully',
-                donor: newDonor
-            });
-        }
+        res.status(200).json({
+            success: true,
+            message: 'Donor upserted successfully',
+            donor: existingDonor
+        });
     } catch (error) {
         console.error('Error adding donor:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';

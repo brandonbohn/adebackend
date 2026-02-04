@@ -1,13 +1,7 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
-import { randomUUID } from 'crypto';
-import { IContact } from '../models/contact';
 import { sendEmail, generateContactConfirmationEmail, generateAdminContactNotification } from '../utils/emailservice';
-
-const contactsFilePath = path.join(__dirname, '../json/contacts.json');
-const donorsFilePath = path.join(__dirname, '../json/donors.json');
-const volunteersFilePath = path.join(__dirname, '../json/volunteers.json');
+import { ContactModel } from '../models/contact';
+import { upsertContactInfo } from '../services/contactInfoService';
 
 /**
  * Create a new contact submission
@@ -58,112 +52,26 @@ export const createContact = async (req: Request, res: Response) => {
       });
     }
 
-    // Read existing contacts
-    let contacts: IContact[] = [];
-    if (fs.existsSync(contactsFilePath)) {
-      const fileData = fs.readFileSync(contactsFilePath, 'utf-8');
-      contacts = JSON.parse(fileData);
-    }
-
-    // Create new contact
-    const contactId = randomUUID();
-    const newContact: IContact = {
-      _id: contactId,
+    // Upsert shared ContactInfo and create Contact submission
+    const contactInfo = await upsertContactInfo({
       name: name.trim(),
-      organization: organization?.trim(),
       email: email.toLowerCase().trim(),
       phone: phone?.trim(),
+    });
+
+    const created = await ContactModel.create({
+      contactid: contactInfo._id as any,
+      organization: organization?.trim(),
       reason: normalizedReason,
       subject: normalizedSubject,
       message: message.trim(),
       status: 'new',
-      createdAt: new Date().toISOString()
-    };
-
-    // Add to contacts array
-    contacts.push(newContact);
-
-    // Save to contacts.json
-    try {
-      fs.writeFileSync(contactsFilePath, JSON.stringify(contacts, null, 2));
-      console.log(`✓ Contact saved to ${contactsFilePath}:`, newContact._id);
-    } catch (writeError) {
-      console.error(`✗ Failed to write contact to ${contactsFilePath}:`, writeError);
-      throw writeError;
-    }
+    });
 
     // SMART CROSS-REFERENCING: Create leads based on reason
     let crossReference: any = null;
 
-    if (normalizedReason === 'donation') {
-      // Create a donor lead
-      let donors: any[] = [];
-      if (fs.existsSync(donorsFilePath)) {
-        const donorsData = fs.readFileSync(donorsFilePath, 'utf-8');
-        donors = JSON.parse(donorsData);
-      }
-
-      // Check if donor already exists
-      const existingDonor = donors.find((d: any) => 
-        d.email?.toLowerCase() === email.toLowerCase()
-      );
-
-      if (!existingDonor) {
-        const donorLead = {
-          _id: randomUUID(),
-          name: name.trim(),
-          email: email.toLowerCase().trim(),
-          phone: phone?.trim(),
-          amount: 0, // No donation yet, just a lead
-          donations: [],
-          status: 'potential', // Lead status
-          source: 'contact-form', // Track where they came from
-          contactId: contactId, // Link back to contact form
-          notes: `Interested in donation. Subject: ${normalizedSubject}`,
-          createdAt: new Date().toISOString()
-        };
-
-        donors.push(donorLead);
-        fs.writeFileSync(donorsFilePath, JSON.stringify(donors, null, 2));
-        crossReference = { type: 'donor-lead', id: donorLead._id };
-      }
-    }
-
-    if (normalizedReason === 'volunteering') {
-      // Create a volunteer lead
-      let volunteers: any[] = [];
-      if (fs.existsSync(volunteersFilePath)) {
-        const volunteersData = fs.readFileSync(volunteersFilePath, 'utf-8');
-        volunteers = JSON.parse(volunteersData);
-      }
-
-      // Check if volunteer already exists
-      const existingVolunteer = volunteers.find((v: any) => 
-        v.email?.toLowerCase() === email.toLowerCase()
-      );
-
-      if (!existingVolunteer) {
-        const volunteerLead = {
-          _id: randomUUID(),
-          name: name.trim(),
-          email: email.toLowerCase().trim(),
-          phone: phone?.trim(),
-          location: organization || 'Not specified',
-          basedIn: 'remote', // Default, can be updated
-          availability: 'To be determined',
-          interests: [], // Will be filled when they submit volunteer form
-          status: 'interested', // Lead status
-          source: 'contact-form', // Track where they came from
-          contactId: contactId, // Link back to contact form
-          notes: `Interested in volunteering. Subject: ${normalizedSubject}`,
-          createdAt: new Date().toISOString()
-        };
-
-        volunteers.push(volunteerLead);
-        fs.writeFileSync(volunteersFilePath, JSON.stringify(volunteers, null, 2));
-        crossReference = { type: 'volunteer-lead', id: volunteerLead._id };
-      }
-    }
+    // Optional: Cross-referencing could create leads in Mongo here in future
 
     // Send confirmation email to user
     const confirmationHtml = generateContactConfirmationEmail(name, normalizedSubject);
@@ -197,16 +105,14 @@ export const createContact = async (req: Request, res: Response) => {
       success: true,
       message: 'Thank you for contacting us! We will get back to you soon.',
       contact: {
-        _id: newContact._id,
-        name: newContact.name,
-        email: newContact.email,
-        subject: newContact.subject,
-        reason: newContact.reason,
-        createdAt: newContact.createdAt
+        _id: String(created._id),
+        name: contactInfo.name,
+        email: contactInfo.email,
+        subject: created.subject,
+        reason: created.reason,
+        createdAt: created.createdAt?.toISOString?.() || new Date().toISOString()
       },
-      ...(crossReference && {
-        leadCreated: crossReference // Let frontend know a lead was created
-      })
+      // cross-reference placeholder
     });
   } catch (error) {
     console.error('Error creating contact:', error);
@@ -227,13 +133,7 @@ export const createContact = async (req: Request, res: Response) => {
  */
 export const getAllContacts = async (req: Request, res: Response) => {
   try {
-    if (!fs.existsSync(contactsFilePath)) {
-      return res.json([]);
-    }
-
-    const fileData = fs.readFileSync(contactsFilePath, 'utf-8');
-    const contacts = JSON.parse(fileData);
-
+    const contacts = await ContactModel.find().populate('contactid');
     res.json(contacts);
   } catch (error) {
     console.error('Error fetching contacts:', error);
@@ -254,18 +154,7 @@ export const getAllContacts = async (req: Request, res: Response) => {
 export const getContactById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
-    if (!fs.existsSync(contactsFilePath)) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Contact not found' }
-      });
-    }
-
-    const fileData = fs.readFileSync(contactsFilePath, 'utf-8');
-    const contacts = JSON.parse(fileData);
-    const contact = contacts.find((c: IContact) => c._id === id);
-
+    const contact = await ContactModel.findById(id).populate('contactid');
     if (!contact) {
       return res.status(404).json({
         success: false,
@@ -302,37 +191,23 @@ export const updateContactStatus = async (req: Request, res: Response) => {
       });
     }
 
-    if (!fs.existsSync(contactsFilePath)) {
+    const updated = await ContactModel.findByIdAndUpdate(
+      id,
+      {
+        status,
+        ...(status === 'responded' ? { respondedAt: new Date() } : {}),
+      },
+      { new: true }
+    ).populate('contactid');
+
+    if (!updated) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: 'Contact not found' }
       });
     }
 
-    const fileData = fs.readFileSync(contactsFilePath, 'utf-8');
-    const contacts = JSON.parse(fileData);
-    const contact = contacts.find((c: IContact) => c._id === id);
-
-    if (!contact) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Contact not found' }
-      });
-    }
-
-    contact.status = status;
-    if (status === 'responded') {
-      contact.respondedAt = new Date().toISOString();
-    }
-    contact.updatedAt = new Date().toISOString();
-
-    fs.writeFileSync(contactsFilePath, JSON.stringify(contacts, null, 2));
-
-    res.json({
-      success: true,
-      message: 'Contact status updated',
-      contact
-    });
+    res.json({ success: true, message: 'Contact status updated', contact: updated });
   } catch (error) {
     console.error('Error updating contact status:', error);
     res.status(500).json({
@@ -349,33 +224,14 @@ export const updateContactStatus = async (req: Request, res: Response) => {
 export const deleteContact = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
-    if (!fs.existsSync(contactsFilePath)) {
+    const deleted = await ContactModel.findByIdAndDelete(id);
+    if (!deleted) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: 'Contact not found' }
       });
     }
-
-    const fileData = fs.readFileSync(contactsFilePath, 'utf-8');
-    let contacts = JSON.parse(fileData);
-    const initialLength = contacts.length;
-
-    contacts = contacts.filter((c: IContact) => c._id !== id);
-
-    if (contacts.length === initialLength) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Contact not found' }
-      });
-    }
-
-    fs.writeFileSync(contactsFilePath, JSON.stringify(contacts, null, 2));
-
-    res.json({
-      success: true,
-      message: 'Contact deleted successfully'
-    });
+    res.json({ success: true, message: 'Contact deleted successfully' });
   } catch (error) {
     console.error('Error deleting contact:', error);
     res.status(500).json({

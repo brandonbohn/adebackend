@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import mongoose from 'mongoose';
 import contentRoutes from './routes/contentRoutes';
+import { getAdedata } from './controllers/contentController';
 import donorRoutes from './routes/donorroutes';
 import donationRoutes from './routes/donationroutes';
 import volunteerRoutes from './routes/volunteerRoutes';
@@ -65,6 +66,13 @@ app.get("/health", (req: Request, res: Response) => {
   res.json(healthInfo);
 });
 console.log('Loading content routes...');
+// Explicit adedata route to avoid any routing ambiguity
+app.get('/api/content/adedata', (req: Request, res: Response) => {
+  // Delegate to controller which uses Mongo-first, JSON fallback
+  // No return type is required; controller handles response fully
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  getAdedata(req, res);
+});
 app.use('/api/content', contentRoutes);
 console.log('Content routes loaded');
 

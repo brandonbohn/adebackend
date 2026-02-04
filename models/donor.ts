@@ -1,12 +1,12 @@
 
-import mongoose, { Schema,} from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 
 
 export interface Donors {
 
     email?: string;
     phone?: string;
-    contactid: string;    
+    contactid: Types.ObjectId | string;    
     name: string;
     country: string;
     pastDonations?: any[];
@@ -19,7 +19,7 @@ export interface Donors {
 const DonorsSchema: Schema = new Schema({
     name: { type: String, required: true },
     country: { type: String, required: true },
-    contactid: { type: String, required: true },
+    contactid: { type: Schema.Types.ObjectId, ref: 'ContactInfo', required: true },
     pastDonations: { type: [Schema.Types.Mixed], default: [] },
     source: { type: String },
     notes: { type: String },

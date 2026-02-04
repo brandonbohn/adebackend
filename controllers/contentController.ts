@@ -47,13 +47,14 @@ export async function getContentBySection(req: Request, res: Response): Promise<
 }
 
 // New: Return full adedata snapshot from Mongo if present; fallback to JSON file
-export async function getAdedata(req: Request, res: Response): Promise<void> {
+export async function getAdedata(req: Request, res: Response): Promise<any> {
   try {
     // Try Mongo 'site' collection first
     const coll = mongoose.connection.collection('site');
     const doc = await coll.findOne({}, { sort: { insertedAt: -1 } });
     if (doc && doc.data) {
-      return res.json(Array.isArray(doc.data) ? doc.data[0] : doc.data);
+      res.json(Array.isArray(doc.data) ? doc.data[0] : doc.data);
+      return;
     }
   } catch (e) {
     // Ignore and fallback to file
@@ -70,7 +71,8 @@ export async function getAdedata(req: Request, res: Response): Promise<void> {
     }
     const raw = fs.readFileSync(dataPath, 'utf-8');
     const data = JSON.parse(raw || '[]');
-    return res.json(Array.isArray(data) ? data[0] : data);
+    res.json(Array.isArray(data) ? data[0] : data);
+    return;
   } catch (error) {
     res.status(500).json({ error: 'Failed to read adedata.json', details: error });
   }

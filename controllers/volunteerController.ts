@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
-import { randomUUID } from 'crypto';
-import { CreateVolunteerRequest, CreateVolunteerResponse, ErrorResponse } from '../contracts/donationContract';
-import { Volunteer } from '../models/volunteer';
-
-const volunteersFilePath = path.join(__dirname, '../json/volunteers.json');
+import { CreateVolunteerResponse, ErrorResponse } from '../contracts/donationContract';
+import VolunteerModel from '../models/volunteer';
+import { upsertContactInfo } from '../services/contactInfoService';
 
 /**
  * Create a new volunteer interest submission
@@ -72,19 +68,16 @@ export const createVolunteer = async (req: Request, res: Response) => {
       return res.status(400).json(errorResponse);
     }
 
-    // Read existing volunteers
-    let volunteers: Volunteer[] = [];
-    if (fs.existsSync(volunteersFilePath)) {
-      const fileData = fs.readFileSync(volunteersFilePath, 'utf-8');
-      volunteers = JSON.parse(fileData);
-    }
+    // Upsert ContactInfo and create volunteer referencing contactid
+    const email = volunteerData.email.toLowerCase().trim();
+    const phone = volunteerData.phone.trim();
+    const name = volunteerData.name.trim();
+    const contact = await upsertContactInfo({ name, email, phone, country: volunteerData.location?.trim() });
 
-    // Create new volunteer record
-    const newVolunteer: Volunteer = {
-      _id: randomUUID(),
-      name: volunteerData.name.trim(),
-      email: volunteerData.email.toLowerCase().trim(),
-      phone: volunteerData.phone.trim(),
+    const created = await VolunteerModel.create({
+      name,
+      email,
+      phone,
       location: volunteerData.location.trim(),
       basedIn: volunteerData.basedIn,
       availability: volunteerData.availability?.trim() || '',
@@ -92,37 +85,25 @@ export const createVolunteer = async (req: Request, res: Response) => {
       otherInterest: volunteerData.otherInterest?.trim(),
       experience: volunteerData.experience?.trim(),
       languagesSpoken: volunteerData.languagesSpoken || [],
-      createdAt: new Date().toISOString(),
-      status: 'pending'
-    };
-
-    // Add to volunteers array
-    volunteers.push(newVolunteer);
-
-    // Save to file
-    try {
-      fs.writeFileSync(volunteersFilePath, JSON.stringify(volunteers, null, 2));
-      console.log(`✓ Volunteer saved to ${volunteersFilePath}:`, newVolunteer._id);
-    } catch (writeError) {
-      console.error(`✗ Failed to write volunteer to ${volunteersFilePath}:`, writeError);
-      throw writeError;
-    }
+      status: 'pending',
+      contactid: contact._id as any,
+    });
 
     // Return success response with complete volunteer data
     const response: CreateVolunteerResponse = {
       success: true,
       message: 'Thank you for your interest in volunteering with ADE! We will contact you soon.',
       volunteer: {
-        _id: newVolunteer._id,
-        name: newVolunteer.name,
-        email: newVolunteer.email,
-        phone: newVolunteer.phone,
-        location: newVolunteer.location,
-        basedIn: newVolunteer.basedIn,
-        interests: newVolunteer.interests,
-        otherInterest: newVolunteer.otherInterest,
-        availability: newVolunteer.availability || 'Not specified',
-        createdAt: newVolunteer.createdAt
+        _id: String(created._id),
+        name: created.name,
+        email: created.email,
+        phone: created.phone,
+        location: created.location,
+        basedIn: created.basedIn,
+        interests: created.interests as any,
+        otherInterest: created.otherInterest,
+        availability: created.availability || 'Not specified',
+        createdAt: created.createdAt?.toISOString?.() || new Date().toISOString()
       }
     };
 
@@ -147,13 +128,7 @@ export const createVolunteer = async (req: Request, res: Response) => {
  */
 export const getAllVolunteers = async (req: Request, res: Response) => {
   try {
-    if (!fs.existsSync(volunteersFilePath)) {
-      return res.json([]);
-    }
-
-    const fileData = fs.readFileSync(volunteersFilePath, 'utf-8');
-    const volunteers = JSON.parse(fileData);
-
+    const volunteers = await VolunteerModel.find().populate('contactid');
     res.json(volunteers);
   } catch (error) {
     console.error('Error fetching volunteers:', error);
@@ -176,22 +151,7 @@ export const getAllVolunteers = async (req: Request, res: Response) => {
 export const getVolunteerById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
-    if (!fs.existsSync(volunteersFilePath)) {
-      const errorResponse: ErrorResponse = {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: 'Volunteer not found'
-        }
-      };
-      return res.status(404).json(errorResponse);
-    }
-
-    const fileData = fs.readFileSync(volunteersFilePath, 'utf-8');
-    const volunteers = JSON.parse(fileData);
-    const volunteer = volunteers.find((v: any) => v._id === id);
-
+    const volunteer = await VolunteerModel.findById(id).populate('contactid');
     if (!volunteer) {
       const errorResponse: ErrorResponse = {
         success: false,
@@ -225,8 +185,8 @@ export const getVolunteerById = async (req: Request, res: Response) => {
 export const deleteVolunteer = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
-    if (!fs.existsSync(volunteersFilePath)) {
+    const deleted = await VolunteerModel.findByIdAndDelete(id);
+    if (!deleted) {
       const errorResponse: ErrorResponse = {
         success: false,
         error: {
@@ -237,29 +197,7 @@ export const deleteVolunteer = async (req: Request, res: Response) => {
       return res.status(404).json(errorResponse);
     }
 
-    const fileData = fs.readFileSync(volunteersFilePath, 'utf-8');
-    let volunteers = JSON.parse(fileData);
-    const initialLength = volunteers.length;
-
-    volunteers = volunteers.filter((v: any) => v._id !== id);
-
-    if (volunteers.length === initialLength) {
-      const errorResponse: ErrorResponse = {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: 'Volunteer not found'
-        }
-      };
-      return res.status(404).json(errorResponse);
-    }
-
-    fs.writeFileSync(volunteersFilePath, JSON.stringify(volunteers, null, 2));
-
-    res.json({
-      success: true,
-      message: 'Volunteer deleted successfully'
-    });
+    res.json({ success: true, message: 'Volunteer deleted successfully' });
   } catch (error) {
     console.error('Error deleting volunteer:', error);
     const errorResponse: ErrorResponse = {
