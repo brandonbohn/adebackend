@@ -24,15 +24,8 @@ console.log('=========================');
 
 const app = express();
 console.log('Express app created');
-app.use(express.json());
-console.log('JSON middleware loaded');
 
-// Enable CORS for only the production frontend domain
-
-// Simple test endpoint (compatible with any platform)
-app.get('/_railway_test', (_req: Request, res: Response) => {
-  res.status(200).json({ message: 'Welcome to the ADEF-C Backend Server' });
-});
+// Enable CORS FIRST before any routes
 app.use(cors({
   origin: [
     'https://www.adekiberafoundation.org',
@@ -41,6 +34,14 @@ app.use(cors({
   credentials: true
 }));
 console.log('CORS middleware loaded');
+
+app.use(express.json());
+console.log('JSON middleware loaded');
+
+// Simple test endpoint (compatible with any platform)
+app.get('/_railway_test', (_req: Request, res: Response) => {
+  res.status(200).json({ message: 'Welcome to the ADEF-C Backend Server' });
+});
 
 /* The code snippet `app.get("/_railway_test", (req: Request, res: Response) => {
   res.send("Welcome to the ADEF-C Backend Server");
