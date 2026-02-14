@@ -12,6 +12,52 @@ export async function processPayment(
   const { amount, currency, paymentOptionType, paymentDetails } = req.body;
 
   try {
+    // Validate required fields
+    if (!amount || !currency || !paymentOptionType) {
+      return res.status(400).json({
+        status: 'error',
+        provider: paymentOptionType,
+        message: 'Missing required fields: amount, currency, paymentOptionType'
+      });
+    }
+
+    // Validate amount
+    const numAmount = parseFloat(String(amount));
+    if (isNaN(numAmount) || numAmount <= 0) {
+      return res.status(400).json({
+        status: 'error',
+        provider: paymentOptionType,
+        message: 'Invalid amount. Please enter a positive number.'
+      });
+    }
+
+    // Validate amount is not too large (prevent errors)
+    if (numAmount > 999999) {
+      return res.status(400).json({
+        status: 'error',
+        provider: paymentOptionType,
+        message: 'Amount exceeds maximum limit. Please contact support for large donations.'
+      });
+    }
+
+    // Validate currency format
+    if (!/^[A-Z]{3}$/.test(currency)) {
+      return res.status(400).json({
+        status: 'error',
+        provider: paymentOptionType,
+        message: 'Invalid currency code'
+      });
+    }
+
+    // Validate payment details
+    if (!paymentDetails || !paymentDetails.email) {
+      return res.status(400).json({
+        status: 'error',
+        provider: paymentOptionType,
+        message: 'Donor email is required'
+      });
+    }
+
     if (paymentOptionType === 'paypal') {
       const result = await processPaypalPayment(req.body);
       return res.json(result);
@@ -29,6 +75,7 @@ export async function processPayment(
       });
     }
   } catch (error: any) {
+    console.error('Payment processing error:', error);
     return res.status(500).json({
       status: 'error',
       provider: paymentOptionType,

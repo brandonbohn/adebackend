@@ -4,3 +4,6 @@ node_modules/
 dist/
 .env
 .env.*
+
+# PayPal sandbox test accounts
+.paypal-sandbox-accounts.txt

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PaymentProcessingRequest } from '../types/paymentTypes';
+import { createPayPalOrder, capturePayPalOrder, verifyPayPalWebhook } from '../services/paypalService';
 
 /**
  * Redirect to payment processor with pre-filled donor information
@@ -24,14 +25,14 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
       });
     }
 
-    const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-success?transactionId={transactionId}&donorId=${donorId}`;
+    const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-success?donorId=${donorId}`;
     const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?cancelled=true`;
 
     let checkoutUrl = '';
 
     switch (provider) {
       case 'paypal':
-        checkoutUrl = generatePayPalCheckout(
+        checkoutUrl = await generatePayPalCheckout(
           amount as string,
           currency as string,
           name as string,
@@ -79,10 +80,8 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
     return res.redirect(checkoutUrl);
   } catch (error) {
     console.error('Error generating checkout URL:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate checkout URL'
-    });
+    const errorPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-error?error=checkout_failed`;
+    res.redirect(errorPage);
   }
 };
 
@@ -92,20 +91,39 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
  */
 export const handlePaymentSuccess = async (req: Request, res: Response) => {
   try {
-    const { transactionId, donorId, provider, reference } = req.query;
+    const { transactionId, donorId, provider, reference, token } = req.query;
 
     console.log(`✅ Payment successful: ${provider} transaction ${transactionId} for donor ${donorId}`);
 
-    // TODO: Update donation record with transaction ID and status
-    // TODO: Send confirmation email
-    // TODO: Trigger any other success workflows
+    // For PayPal, capture the order using the token
+    if (provider === 'paypal' && token) {
+      try {
+        const result = await capturePayPalOrder(token as string);
+        
+        if (result.success) {
+          console.log(`✅ PayPal payment captured: ${result.transactionId}`);
+          
+          // TODO: Update donation record with transaction ID and status
+          // TODO: Send confirmation email
+          
+          const successPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-success?transactionId=${result.transactionId}&amount=${result.amount}&currency=${result.currency}&provider=paypal`;
+          return res.redirect(successPage);
+        } else {
+          throw new Error('Payment capture failed');
+        }
+      } catch (error) {
+        console.error('Error capturing PayPal payment:', error);
+        const errorPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?error=capture_failed`;
+        return res.redirect(errorPage);
+      }
+    }
 
     // Redirect to success page (org-specific URL from env)
     const successPage = process.env.DONATION_SUCCESS_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-success?transactionId=${transactionId}&provider=${provider}`;
     res.redirect(successPage);
   } catch (error) {
     console.error('Error handling payment success:', error);
-    const errorPage = process.env.DONATION_ERROR_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?error=payment_failed`;
+    const errorPage = process.env.DONATION_ERROR_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-error?error=payment_failed`;
     res.redirect(errorPage);
   }
 };
@@ -120,19 +138,20 @@ export const handlePaymentCancel = async (req: Request, res: Response) => {
 
     console.log(`⚠️ Payment cancelled: ${provider} for donor ${donorId}`);
 
-    // Redirect to cancel page (org-specific URL from env)
-    const cancelPage = process.env.DONATION_CANCEL_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?cancelled=true&provider=${provider}`;
+    // Redirect to error page with cancelled flag
+    const cancelPage = process.env.DONATION_CANCEL_URL || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-error?cancelled=true&provider=${provider}`;
     res.redirect(cancelPage);
   } catch (error) {
     console.error('Error handling payment cancellation:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate`);
+    const errorPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-error?error=cancelled`;
+    res.redirect(errorPage);
   }
 };
 
 /**
  * PayPal Checkout URL Generator
  */
-function generatePayPalCheckout(
+async function generatePayPalCheckout(
   amount: string,
   currency: string,
   name: string,
@@ -140,11 +159,24 @@ function generatePayPalCheckout(
   donorId: string,
   successUrl: string,
   cancelUrl: string
-): string {
-  // TODO: Implement real PayPal SDK integration
-  // For now, redirect to PayPal homepage for testing
-  console.log(`💳 PayPal checkout: $${amount} ${currency} from ${email} (donor: ${donorId})`);
-  return 'https://www.paypal.com';
+): Promise<string> {
+  try {
+    console.log(`💳 Creating PayPal order: ${currency} ${amount} from ${email} (donor: ${donorId})`);
+    
+    const { orderId, approvalUrl } = await createPayPalOrder(
+      amount,
+      currency,
+      donorId,
+      successUrl,
+      cancelUrl
+    );
+
+    console.log(`✅ PayPal order created: ${orderId}`);
+    return approvalUrl;
+  } catch (error) {
+    console.error('Failed to create PayPal order:', error);
+    throw error;
+  }
 }
 
 /**
@@ -188,15 +220,44 @@ function generateMpesaCheckout(
  */
 export const handlePayPalWebhook = async (req: Request, res: Response) => {
   try {
-    console.log('📨 PayPal IPN received:', req.body);
+    console.log('📨 PayPal webhook received:', req.body?.event_type);
 
-    const { item_number: donorId, mc_gross: amount, txn_id: transactionId, payment_status } = req.body;
+    // Verify webhook signature
+    const isValid = await verifyPayPalWebhook(req.headers, req.body);
+    
+    if (!isValid && process.env.NODE_ENV === 'production') {
+      console.error('⚠️ Invalid PayPal webhook signature');
+      return res.status(401).send('Unauthorized');
+    }
 
-    // TODO: Verify IPN authenticity with PayPal
-    // TODO: Update donation record in database
+    const { event_type, resource } = req.body;
 
-    if (payment_status === 'Completed') {
-      console.log(`✅ PayPal payment verified for donor ${donorId}: ${transactionId}`);
+    // Handle different event types
+    switch (event_type) {
+      case 'CHECKOUT.ORDER.APPROVED':
+        console.log(`✅ PayPal order approved: ${resource.id}`);
+        // TODO: Store order approval
+        break;
+
+      case 'PAYMENT.CAPTURE.COMPLETED':
+        const captureId = resource.id;
+        const amount = resource.amount.value;
+        const currency = resource.amount.currency_code;
+        const orderId = resource.supplementary_data?.related_ids?.order_id;
+        
+        console.log(`✅ PayPal payment captured: ${captureId} for ${currency} ${amount}`);
+        
+        // TODO: Update donation record in database
+        // TODO: Send confirmation email to donor
+        break;
+
+      case 'PAYMENT.CAPTURE.DENIED':
+        console.log(`❌ PayPal payment denied: ${resource.id}`);
+        // TODO: Handle denied payment
+        break;
+
+      default:
+        console.log(`📨 Unhandled PayPal event: ${event_type}`);
     }
 
     res.status(200).send('OK');

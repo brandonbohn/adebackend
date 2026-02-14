@@ -24,8 +24,15 @@ console.log('=========================');
 
 const app = express();
 console.log('Express app created');
+app.use(express.json());
+console.log('JSON middleware loaded');
 
-// Enable CORS FIRST before any routes
+// Enable CORS for only the production frontend domain
+
+// Simple test endpoint (compatible with any platform)
+app.get('/_railway_test', (_req: Request, res: Response) => {
+  res.status(200).json({ message: 'Welcome to the ADEF-C Backend Server' });
+});
 app.use(cors({
   origin: [
     'https://www.adekiberafoundation.org',
@@ -34,14 +41,6 @@ app.use(cors({
   credentials: true
 }));
 console.log('CORS middleware loaded');
-
-app.use(express.json());
-console.log('JSON middleware loaded');
-
-// Simple test endpoint (compatible with any platform)
-app.get('/_railway_test', (_req: Request, res: Response) => {
-  res.status(200).json({ message: 'Welcome to the ADEF-C Backend Server' });
-});
 
 /* The code snippet `app.get("/_railway_test", (req: Request, res: Response) => {
   res.send("Welcome to the ADEF-C Backend Server");
@@ -86,6 +85,25 @@ console.log('Payment routes loaded');
 
 console.log('Loading volunteer routes...');
 app.use('/api/volunteers', volunteerRoutes);
+app.use('/volunteers', volunteerRoutes); // Redirect /volunteers to /api/volunteers for frontend compatibility
+
+// Quick GET endpoint for /volunteers page load
+app.get('/volunteers', (req: Request, res: Response) => {
+  const fs = require('fs');
+  const path = require('path');
+  const volunteersFilePath = path.join(__dirname, 'json', 'volunteers.json');
+  try {
+    if (fs.existsSync(volunteersFilePath)) {
+      const data = fs.readFileSync(volunteersFilePath, 'utf-8');
+      res.json(JSON.parse(data || '[]'));
+    } else {
+      res.json([]);
+    }
+  } catch (error) {
+    res.json([]);
+  }
+});
+
 console.log('Volunteer routes loaded');
 
 console.log('Loading contact routes...');
@@ -104,7 +122,7 @@ const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);
 
 const mongoUri = process.env.MONGO_URI;
-const mongoDbName = process.env.MONGO_DB || 'adebackend';
+const mongoDbName = process.env.MONGO_DB || 'AdeBackend';
 if (!mongoUri) {
   console.error('MONGO_URI is not set. Server will not start.');
   process.exit(1);

@@ -16,11 +16,12 @@
     "postbuild": "echo Postbuild complete"
   },
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.3",
     "@types/stripe": "^8.0.416",
     "@types/uuid": "^10.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.21.2",
-    "cors": "^2.8.5",
     "mongoose": "^9.0.0",
     "nodemailer": "^7.0.12",
     "stripe": "^19.1.0",
