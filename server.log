@@ -1,7 +1,32 @@
+
+> adefc-backend@1.0.0 dev
+> npm run build && npm start
+
+
+> adefc-backend@1.0.0 build
+> tsc --skipLibCheck && mkdir -p dist/json && node scripts/copyJsonFiles.js
+
+✓ Copied config: adedata.json
+✓ Copied config: donationform.json
+✓ Copied config: voluteerform.json
+⊘ Skipped (preserving data): contacts.json
+⊘ Skipped (preserving data): donations.json
+⊘ Skipped (preserving data): donors.json
+⊘ Skipped (preserving data): volunteers.json
+✓ JSON files ready
+
+> adefc-backend@1.0.0 postbuild
+> echo Postbuild complete
+
+Postbuild complete
+
+> adefc-backend@1.0.0 start
+> node dist/server.js
+
 === SERVER STARTUP LOG ===
 Node version: v20.19.6
 Environment: development
-PORT: 3000
+PORT: 8080
 Current directory: /home/nomad40/Barebohnzdevandconsulting/ADE/adebackend/dist
 =========================
 Express app created
@@ -21,8 +46,19 @@ Loading contact routes...
 Contact routes loaded
 Loading admin routes...
 Admin routes loaded
-Attempting to bind to port 3000 on 0.0.0.0...
+Loading budget routes...
+Budget routes loaded
+Loading program routes...
+Program routes loaded
+Loading expense routes...
+Expense routes loaded
+Loading report routes...
+Report routes loaded
+Loading donor system content routes...
+Donor system content routes loaded
+Attempting to bind to port 8080 on 0.0.0.0...
 ✓ MongoDB connected
-✓ Server successfully started on port 3000
-✓ Server accessible at http://0.0.0.0:3000
+✓ Server successfully started on port 8080
+✓ Server accessible at http://0.0.0.0:8080
 === SERVER READY ===
+Killed

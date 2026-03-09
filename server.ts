@@ -13,6 +13,11 @@ import volunteerRoutes from './routes/volunteerRoutes';
 import contactRoutes from './routes/contactRoutes';
 import adminRoutes from './routes/adminRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import budgetRoutes from './routes/budgetRoutes';
+import programRoutes from './routes/programRoutes';
+import expenseRoutes from './routes/expenseRoutes';
+import reportRoutes from './routes/reportRoutes';
+import donorSystemContentRoutes from './routes/donorSystemContentRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 dotenv.config();
@@ -36,7 +41,9 @@ app.get('/_railway_test', (_req: Request, res: Response) => {
 app.use(cors({
   origin: [
     'https://www.adekiberafoundation.org',
-    'http://localhost:5173' // allow local dev
+    'http://localhost:5173', // allow local dev
+    'http://localhost:5175', // allow local dev (alt port)
+    'http://localhost:5174'  // allow local dev (alt port)
   ],
   credentials: true
 }));
@@ -117,6 +124,26 @@ console.log('Contact routes loaded');
 console.log('Loading admin routes...');
 app.use('/api/admin', adminRoutes);
 console.log('Admin routes loaded');
+
+console.log('Loading budget routes...');
+app.use('/api/budgets', budgetRoutes);
+console.log('Budget routes loaded');
+
+console.log('Loading program routes...');
+app.use('/api/programs', programRoutes);
+console.log('Program routes loaded');
+
+console.log('Loading expense routes...');
+app.use('/api/expenses', expenseRoutes);
+console.log('Expense routes loaded');
+
+console.log('Loading report routes...');
+app.use('/api/reports', reportRoutes);
+console.log('Report routes loaded');
+
+console.log('Loading donor system content routes...');
+app.use('/api/donor-system-content', donorSystemContentRoutes);
+console.log('Donor system content routes loaded');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);

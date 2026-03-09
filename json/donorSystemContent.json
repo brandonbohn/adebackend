@@ -1,0 +1,492 @@
+{
+  "systemInfo": {
+    "name": "ADE Donor Management System",
+    "description": "Comprehensive donor and program management platform",
+    "version": "1.0.0",
+    "organizationName": "Ade Kibera Foundation",
+    "tagline": "Welcome to your management dashboard"
+  },
+  "navigation": {
+    "mainMenu": [
+      {
+        "id": "dashboard",
+        "label": "Dashboard",
+        "icon": "📊",
+        "route": "/dashboard",
+        "description": "Overview of all activities and metrics"
+      },
+      {
+        "id": "budgets",
+        "label": "Budgets",
+        "icon": "💰",
+        "route": "/budgets",
+        "description": "Manage organizational budgets"
+      },
+      {
+        "id": "expenses",
+        "label": "Expenses",
+        "icon": "💳",
+        "route": "/expenses",
+        "description": "Track and manage expenses"
+      },
+      {
+        "id": "programs",
+        "label": "Programs",
+        "icon": "📋",
+        "route": "/programs",
+        "description": "Manage programs and initiatives"
+      },
+      {
+        "id": "reports",
+        "label": "Reports",
+        "icon": "📈",
+        "route": "/reports",
+        "description": "Generate and view reports"
+      }
+    ]
+  },
+  "dashboard": {
+    "title": "Dashboard Overview",
+    "description": "Real-time insights into your organization's activities",
+    "widgets": [
+      {
+        "id": "total-budget",
+        "title": "Total Budget",
+        "type": "metric",
+        "icon": "💰",
+        "color": "#4CAF50"
+      },
+      {
+        "id": "total-spent",
+        "title": "Total Spent",
+        "type": "metric",
+        "icon": "💸",
+        "color": "#FF9800"
+      },
+      {
+        "id": "active-programs",
+        "title": "Active Programs",
+        "type": "metric",
+        "icon": "📋",
+        "color": "#2196F3"
+      },
+      {
+        "id": "pending-expenses",
+        "title": "Pending Expenses",
+        "type": "metric",
+        "icon": "⏳",
+        "color": "#F44336"
+      }
+    ],
+    "charts": [
+      {
+        "id": "budget-vs-spent",
+        "title": "Budget vs Spent",
+        "type": "bar",
+        "description": "Comparison of allocated budget and actual spending"
+      },
+      {
+        "id": "program-distribution",
+        "title": "Program Distribution",
+        "type": "pie",
+        "description": "Distribution of funds across programs"
+      },
+      {
+        "id": "monthly-trend",
+        "title": "Monthly Spending Trend",
+        "type": "line",
+        "description": "Monthly spending trends over time"
+      }
+    ]
+  },
+  "budgets": {
+    "title": "Budget Management",
+    "description": "Track and manage organizational budgets",
+    "categories": [
+      {
+        "id": "operations",
+        "name": "Operations Budget",
+        "description": "Day-to-day operational expenses",
+        "color": "#2196F3",
+        "icon": "🏢"
+      },
+      {
+        "id": "programs",
+        "name": "Programs Budget",
+        "description": "Budget allocated to various programs",
+        "color": "#4CAF50",
+        "icon": "📋"
+      },
+      {
+        "id": "marketing",
+        "name": "Marketing Budget",
+        "description": "Marketing and outreach expenses",
+        "color": "#FF9800",
+        "icon": "📢"
+      },
+      {
+        "id": "infrastructure",
+        "name": "Infrastructure Budget",
+        "description": "Infrastructure and equipment costs",
+        "color": "#9C27B0",
+        "icon": "🏗️"
+      }
+    ],
+    "fields": [
+      {
+        "name": "name",
+        "label": "Budget Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter budget name"
+      },
+      {
+        "name": "amount",
+        "label": "Amount",
+        "type": "number",
+        "required": true,
+        "placeholder": "0.00"
+      },
+      {
+        "name": "year",
+        "label": "Year",
+        "type": "number",
+        "required": true,
+        "placeholder": "2026"
+      },
+      {
+        "name": "category",
+        "label": "Category",
+        "type": "select",
+        "required": true,
+        "options": ["Operations", "Programs", "Marketing", "Infrastructure"]
+      },
+      {
+        "name": "description",
+        "label": "Description",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Enter budget description"
+      }
+    ]
+  },
+  "expenses": {
+    "title": "Expense Management",
+    "description": "Track and manage all organizational expenses",
+    "categories": [
+      "Education",
+      "Healthcare",
+      "Infrastructure",
+      "Food & Nutrition",
+      "Operations",
+      "Marketing",
+      "Salaries",
+      "Utilities",
+      "Transportation",
+      "Supplies",
+      "Other"
+    ],
+    "statuses": [
+      {
+        "value": "pending",
+        "label": "Pending",
+        "color": "#FFA726",
+        "icon": "⏳"
+      },
+      {
+        "value": "approved",
+        "label": "Approved",
+        "color": "#66BB6A",
+        "icon": "✅"
+      },
+      {
+        "value": "rejected",
+        "label": "Rejected",
+        "color": "#EF5350",
+        "icon": "❌"
+      }
+    ],
+    "paymentMethods": [
+      "Cash",
+      "Bank Transfer",
+      "Mobile Money",
+      "Check",
+      "Credit Card",
+      "Debit Card"
+    ],
+    "fields": [
+      {
+        "name": "date",
+        "label": "Date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "name": "description",
+        "label": "Description",
+        "type": "text",
+        "required": true,
+        "placeholder": "Expense description"
+      },
+      {
+        "name": "category",
+        "label": "Category",
+        "type": "select",
+        "required": true
+      },
+      {
+        "name": "vendor",
+        "label": "Vendor",
+        "type": "text",
+        "required": true,
+        "placeholder": "Vendor name"
+      },
+      {
+        "name": "amount",
+        "label": "Amount",
+        "type": "number",
+        "required": true,
+        "placeholder": "0.00"
+      },
+      {
+        "name": "program",
+        "label": "Program",
+        "type": "select",
+        "required": true
+      },
+      {
+        "name": "receiptNumber",
+        "label": "Receipt Number",
+        "type": "text",
+        "required": false,
+        "placeholder": "Receipt #"
+      },
+      {
+        "name": "paymentMethod",
+        "label": "Payment Method",
+        "type": "select",
+        "required": true
+      },
+      {
+        "name": "approvedBy",
+        "label": "Approved By",
+        "type": "text",
+        "required": true,
+        "placeholder": "Approver name"
+      },
+      {
+        "name": "notes",
+        "label": "Notes",
+        "type": "textarea",
+        "required": false,
+        "placeholder": "Additional notes"
+      }
+    ]
+  },
+  "programs": {
+    "title": "Program Management",
+    "description": "Manage programs and track their progress",
+    "statuses": [
+      {
+        "value": "planned",
+        "label": "Planned",
+        "color": "#9E9E9E",
+        "icon": "📝"
+      },
+      {
+        "value": "active",
+        "label": "Active",
+        "color": "#4CAF50",
+        "icon": "▶️"
+      },
+      {
+        "value": "on-hold",
+        "label": "On Hold",
+        "color": "#FF9800",
+        "icon": "⏸️"
+      },
+      {
+        "value": "completed",
+        "label": "Completed",
+        "color": "#2196F3",
+        "icon": "✓"
+      }
+    ],
+    "fields": [
+      {
+        "name": "name",
+        "label": "Program Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter program name"
+      },
+      {
+        "name": "description",
+        "label": "Description",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Program description"
+      },
+      {
+        "name": "budget",
+        "label": "Budget",
+        "type": "number",
+        "required": true,
+        "placeholder": "0.00"
+      },
+      {
+        "name": "startDate",
+        "label": "Start Date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "name": "endDate",
+        "label": "End Date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "name": "beneficiaries",
+        "label": "Target Beneficiaries",
+        "type": "number",
+        "required": true,
+        "placeholder": "Number of beneficiaries"
+      },
+      {
+        "name": "location",
+        "label": "Location",
+        "type": "text",
+        "required": true,
+        "placeholder": "Program location"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "type": "select",
+        "required": true
+      }
+    ]
+  },
+  "reports": {
+    "title": "Reports",
+    "description": "Generate and view organizational reports",
+    "types": [
+      {
+        "value": "financial",
+        "label": "Financial Report",
+        "icon": "💰",
+        "description": "Comprehensive financial overview"
+      },
+      {
+        "value": "program",
+        "label": "Program Report",
+        "icon": "📋",
+        "description": "Program performance and outcomes"
+      },
+      {
+        "value": "donor",
+        "label": "Donor Report",
+        "icon": "🤝",
+        "description": "Donor contributions and engagement"
+      },
+      {
+        "value": "quarterly",
+        "label": "Quarterly Report",
+        "icon": "📅",
+        "description": "Quarterly summary of activities"
+      },
+      {
+        "value": "annual",
+        "label": "Annual Report",
+        "icon": "📊",
+        "description": "Annual comprehensive report"
+      }
+    ],
+    "fields": [
+      {
+        "name": "title",
+        "label": "Report Title",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter report title"
+      },
+      {
+        "name": "type",
+        "label": "Report Type",
+        "type": "select",
+        "required": true
+      },
+      {
+        "name": "period",
+        "label": "Period",
+        "type": "text",
+        "required": true,
+        "placeholder": "e.g., Q1 2026, Jan-Mar 2026"
+      },
+      {
+        "name": "summary",
+        "label": "Summary",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Report summary"
+      }
+    ]
+  },
+  "forms": {
+    "common": {
+      "submitButton": "Submit",
+      "cancelButton": "Cancel",
+      "saveButton": "Save",
+      "editButton": "Edit",
+      "deleteButton": "Delete",
+      "addButton": "Add New",
+      "resetButton": "Reset",
+      "searchPlaceholder": "Search...",
+      "filterButton": "Filter",
+      "exportButton": "Export"
+    },
+    "validation": {
+      "required": "This field is required",
+      "invalidEmail": "Invalid email format",
+      "invalidPhone": "Invalid phone number",
+      "invalidDate": "Invalid date",
+      "minLength": "Minimum length not met",
+      "maxLength": "Maximum length exceeded",
+      "invalidNumber": "Invalid number format"
+    }
+  },
+  "messages": {
+    "success": {
+      "created": "Record created successfully",
+      "updated": "Record updated successfully",
+      "deleted": "Record deleted successfully",
+      "saved": "Changes saved successfully"
+    },
+    "error": {
+      "generic": "An error occurred. Please try again.",
+      "network": "Network error. Please check your connection.",
+      "notFound": "Record not found",
+      "unauthorized": "You are not authorized to perform this action",
+      "validation": "Please check the form for errors"
+    },
+    "loading": {
+      "fetchingData": "Loading data from database...",
+      "processing": "Processing...",
+      "saving": "Saving changes...",
+      "deleting": "Deleting..."
+    }
+  },
+  "theme": {
+    "primaryColor": "#2196F3",
+    "secondaryColor": "#4CAF50",
+    "accentColor": "#FF9800",
+    "dangerColor": "#F44336",
+    "warningColor": "#FFC107",
+    "successColor": "#4CAF50",
+    "backgroundColor": "#121212",
+    "surfaceColor": "#1E1E1E",
+    "textPrimary": "#FFFFFF",
+    "textSecondary": "#B0B0B0"
+  }
+}

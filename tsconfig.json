@@ -18,6 +18,7 @@
     "services/**/*.ts",
     "routes/**/*.ts",
     "types/**/*.ts",
+    "scripts/**/*.ts",
     "server.ts",
     "database.ts",
     "index.ts"

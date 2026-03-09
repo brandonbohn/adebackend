@@ -15,7 +15,7 @@ if (!fs.existsSync(distDir)) {
 const dataFiles = ['contacts.json', 'donations.json', 'donors.json', 'volunteers.json'];
 
 // Files that should always be copied (config files)
-const configFiles = ['adedata.json', 'donationform.json', 'voluteerform.json'];
+const configFiles = ['adedata.json', 'donationform.json', 'voluteerform.json', 'donorSystemContent.json'];
 
 // Copy config files (always overwrite)
 configFiles.forEach(file => {
