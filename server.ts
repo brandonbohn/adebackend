@@ -207,18 +207,37 @@ app.get('/api/check-json', (req: Request, res: Response) => {
 
 
 // Dedicated endpoint for donateSection
-app.get('/api/donate', (req: Request, res: Response) => {
-  const dataPath = path.join(__dirname, 'json', 'adedata.json');
+app.get(['/api/donate', '/donate', '/api/content/donate'], async (_req: Request, res: Response) => {
   try {
-    if (!fs.existsSync(dataPath)) {
-      return res.status(404).json({ error: 'adedata.json not found' });
+    let donateSection: any = null;
+
+    // Try MongoDB site collection first
+    try {
+      const coll = mongoose.connection.collection('site');
+      const doc = await coll.findOne({}, { sort: { insertedAt: -1 } });
+      if (doc?.data) {
+        const siteData = Array.isArray(doc.data) && doc.data.length > 0 ? doc.data[0] : doc.data;
+        donateSection = siteData?.sectionsData?.donateSection;
+      }
+    } catch (mongoErr: any) {
+      console.error('Donate endpoint Mongo lookup failed:', mongoErr?.message);
     }
-    const raw = fs.readFileSync(dataPath, 'utf-8');
-    const data = JSON.parse(raw);
-    const donateSection = data[0]?.sectionsData?.donateSection;
+
+    // Fallback to JSON file (project-root json directory)
+    if (!donateSection) {
+      const dataPath = path.join(__dirname, '../json/adedata.json');
+      if (fs.existsSync(dataPath)) {
+        const raw = fs.readFileSync(dataPath, 'utf-8');
+        const data = JSON.parse(raw || '[]');
+        const siteData = Array.isArray(data) ? data[0] : data;
+        donateSection = siteData?.sectionsData?.donateSection;
+      }
+    }
+
     if (!donateSection) {
       return res.status(404).json({ error: 'donateSection not found' });
     }
+
     res.json(donateSection);
   } catch (err) {
     res.status(500).json({ error: 'Error reading donateSection', details: err });
