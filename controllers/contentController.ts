@@ -59,6 +59,26 @@ export async function getContentBySection(req: Request, res: Response): Promise<
     } catch (e: any) {
       console.error('Error checking site collection:', e?.message);
     }
+
+    // Fallback to local JSON snapshot
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const dataPath = path.join(__dirname, '../json/adedata.json');
+      if (fs.existsSync(dataPath)) {
+        const raw = fs.readFileSync(dataPath, 'utf-8');
+        const parsed = JSON.parse(raw || '[]');
+        const siteData = Array.isArray(parsed) ? parsed[0] : parsed;
+        const sectionsData = siteData?.sectionsData;
+        if (sectionsData && sectionsData[section]) {
+          console.log(`✓ Serving ${section} from JSON fallback`);
+          res.json(sectionsData[section]);
+          return;
+        }
+      }
+    } catch (jsonErr: any) {
+      console.error('Error checking JSON fallback:', jsonErr?.message);
+    }
     
     // Section not found anywhere
     res.status(404).json({ error: 'Section not found', section });
