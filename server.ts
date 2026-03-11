@@ -205,6 +205,56 @@ app.get('/api/check-json', (req: Request, res: Response) => {
   }
 });
 
+// Reports current content source for adedata and donateSection
+app.get('/api/content-source', async (_req: Request, res: Response) => {
+  try {
+    let adedataSource: 'mongo' | 'json-fallback' | 'not-found' = 'not-found';
+    let donateSectionSource: 'mongo' | 'json-fallback' | 'not-found' = 'not-found';
+
+    // Check MongoDB site collection first
+    try {
+      const coll = mongoose.connection.collection('site');
+      const doc = await coll.findOne({}, { sort: { insertedAt: -1 } });
+      if (doc?.data) {
+        const siteData = Array.isArray(doc.data) && doc.data.length > 0 ? doc.data[0] : doc.data;
+        if (siteData) {
+          adedataSource = 'mongo';
+        }
+        if (siteData?.sectionsData?.donateSection) {
+          donateSectionSource = 'mongo';
+        }
+      }
+    } catch (mongoErr: any) {
+      console.error('Content-source Mongo lookup failed:', mongoErr?.message);
+    }
+
+    // Fallback checks from JSON file if Mongo did not provide data
+    if (adedataSource !== 'mongo' || donateSectionSource !== 'mongo') {
+      const dataPath = path.join(__dirname, '../json/adedata.json');
+      if (fs.existsSync(dataPath)) {
+        const raw = fs.readFileSync(dataPath, 'utf-8');
+        const data = JSON.parse(raw || '[]');
+        const siteData = Array.isArray(data) ? data[0] : data;
+
+        if (adedataSource !== 'mongo' && siteData) {
+          adedataSource = 'json-fallback';
+        }
+        if (donateSectionSource !== 'mongo' && siteData?.sectionsData?.donateSection) {
+          donateSectionSource = 'json-fallback';
+        }
+      }
+    }
+
+    res.json({
+      adedataSource,
+      donateSectionSource,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to determine content source', details: err?.message || err });
+  }
+});
+
 
 // Dedicated endpoint for donateSection
 app.get(['/api/donate', '/donate', '/api/content/donate'], async (_req: Request, res: Response) => {

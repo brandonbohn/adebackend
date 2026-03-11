@@ -4,19 +4,32 @@ import { Request, Response } from 'express';
 import { PaymentProcessingRequest, PaymentProcessingResponse } from '../types/paymentTypes';
 import { PaymentOptionModel } from '../models/PaymentOption';
 
+function normalizePaymentProvider(value: unknown): 'paypal' | 'mpesa' | 'flutterwave' | '' {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[-_\s]/g, '');
+
+  if (normalized === 'paypal') return 'paypal';
+  if (normalized === 'mpesa') return 'mpesa';
+  if (normalized === 'flutterwave') return 'flutterwave';
+  return '';
+}
+
 
 export async function processPayment(
   req: Request<{}, {}, PaymentProcessingRequest>,
   res: Response<PaymentProcessingResponse>
 ) {
   const { amount, currency, paymentOptionType, paymentDetails } = req.body;
+  const provider = normalizePaymentProvider(paymentOptionType);
 
   try {
     // Validate required fields
-    if (!amount || !currency || !paymentOptionType) {
+    if (!amount || !currency || !provider) {
       return res.status(400).json({
         status: 'error',
-        provider: paymentOptionType,
+        provider: provider || String(paymentOptionType || ''),
         message: 'Missing required fields: amount, currency, paymentOptionType'
       });
     }
@@ -26,7 +39,7 @@ export async function processPayment(
     if (isNaN(numAmount) || numAmount <= 0) {
       return res.status(400).json({
         status: 'error',
-        provider: paymentOptionType,
+        provider,
         message: 'Invalid amount. Please enter a positive number.'
       });
     }
@@ -35,7 +48,7 @@ export async function processPayment(
     if (numAmount > 999999) {
       return res.status(400).json({
         status: 'error',
-        provider: paymentOptionType,
+        provider,
         message: 'Amount exceeds maximum limit. Please contact support for large donations.'
       });
     }
@@ -44,7 +57,7 @@ export async function processPayment(
     if (!/^[A-Z]{3}$/.test(currency)) {
       return res.status(400).json({
         status: 'error',
-        provider: paymentOptionType,
+        provider,
         message: 'Invalid currency code'
       });
     }
@@ -53,24 +66,24 @@ export async function processPayment(
     if (!paymentDetails || !paymentDetails.email) {
       return res.status(400).json({
         status: 'error',
-        provider: paymentOptionType,
+        provider,
         message: 'Donor email is required'
       });
     }
 
-    if (paymentOptionType === 'paypal') {
+    if (provider === 'paypal') {
       const result = await processPaypalPayment(req.body);
       return res.json(result);
-    } else if (paymentOptionType === 'mpesa') {
+    } else if (provider === 'mpesa') {
       const result = await processMpesaPayment(req.body);
       return res.json(result);
-    } else if (paymentOptionType === 'flutterwave') {
+    } else if (provider === 'flutterwave') {
       const result = await processFlutterwavePayment(req.body);
       return res.json(result);
     } else {
       return res.status(400).json({
         status: 'error',
-        provider: paymentOptionType,
+        provider,
         message: 'Unsupported payment provider'
       });
     }
@@ -78,7 +91,7 @@ export async function processPayment(
     console.error('Payment processing error:', error);
     return res.status(500).json({
       status: 'error',
-      provider: paymentOptionType,
+      provider: provider || String(paymentOptionType || ''),
       message: error.message || 'Payment processing failed'
     });
   }
