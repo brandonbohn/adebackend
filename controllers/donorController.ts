@@ -20,6 +20,19 @@ interface Donors {
     phone?: string;
 }
 
+function normalizePaymentProvider(value: unknown): 'paypal' | 'flutterwave' | 'mpesa' {
+    const normalized = String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[-_\s]/g, '');
+
+    if (normalized === 'paypal') return 'paypal';
+    if (normalized === 'flutterwave') return 'flutterwave';
+    if (normalized === 'mpesa') return 'mpesa';
+
+    return 'paypal';
+}
+
 const findAllDonors = async () => DonorsModel.find().populate('contactid');
 const createDonor = async (doc: Partial<Donors>) => DonorsModel.create(doc);
 const findDonorById = async (id: string) => DonorsModel.findById(id).populate('contactid');
@@ -87,11 +100,8 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
         // Generate payment URL if amount and payment method provided
         let paymentUrl = null;
         if (amount && paymentMethod) {
-            const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
-            const provider = paymentMethod === 'paypal' ? 'paypal' 
-                           : paymentMethod === 'flutterwave' ? 'flutterwave'
-                           : paymentMethod === 'mpesa' ? 'mpesa'
-                           : 'paypal'; // default
+            const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:8080';
+            const provider = normalizePaymentProvider(paymentMethod);
             
             const params = new URLSearchParams({
                 provider,

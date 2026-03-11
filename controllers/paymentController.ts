@@ -5,6 +5,19 @@ import { initiateStkPush, parseStkCallback } from '../services/mpesaService';
 import DonationModel from '../models/donations';
 import mongoose from 'mongoose';
 
+function normalizePaymentProvider(value: unknown): 'paypal' | 'flutterwave' | 'mpesa' | '' {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[-_\s]/g, '');
+
+  if (normalized === 'paypal') return 'paypal';
+  if (normalized === 'flutterwave') return 'flutterwave';
+  if (normalized === 'mpesa') return 'mpesa';
+
+  return '';
+}
+
 /**
  * Redirect to payment processor with pre-filled donor information
  * GET /api/payments/checkout
@@ -20,8 +33,9 @@ import mongoose from 'mongoose';
 export const getCheckoutUrl = async (req: Request, res: Response) => {
   try {
     const { provider, amount, currency, donorId, name, email, phone } = req.query;
+    const normalizedProvider = normalizePaymentProvider(provider);
 
-    if (!provider || !amount || !currency) {
+    if (!normalizedProvider || !amount || !currency) {
       return res.status(400).json({
         success: false,
         error: 'Missing required parameters: provider, amount, currency'
@@ -33,7 +47,7 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
 
     let checkoutUrl = '';
 
-    switch (provider) {
+    switch (normalizedProvider) {
       case 'paypal':
         checkoutUrl = await generatePayPalCheckout(
           amount as string,
@@ -77,7 +91,7 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
         });
     }
 
-    console.log(`💳 Generating ${provider} checkout for donor ${donorId}, amount: ${amount} ${currency}`);
+    console.log(`💳 Generating ${normalizedProvider} checkout for donor ${donorId}, amount: ${amount} ${currency}`);
 
     // Redirect directly to the payment provider (browser-friendly)
     return res.redirect(checkoutUrl);
