@@ -71,6 +71,15 @@ export async function processPayment(
       });
     }
 
+    // This endpoint uses mock processors and should never be used for live payments.
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(501).json({
+        status: 'error',
+        provider,
+        message: 'process-payment is disabled in production. Use /api/payments/checkout for live providers.'
+      });
+    }
+
     if (provider === 'paypal') {
       const result = await processPaypalPayment(req.body);
       return res.json(result);
