@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { PaymentProcessingRequest } from '../types/paymentTypes';
 import { createPayPalOrder, capturePayPalOrder, verifyPayPalWebhook } from '../services/paypalService';
+import { initiateStkPush, parseStkCallback } from '../services/mpesaService';
+import DonationModel from '../models/donations';
+import mongoose from 'mongoose';
 
 /**
  * Redirect to payment processor with pre-filled donor information
@@ -44,7 +47,7 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
         break;
 
       case 'flutterwave':
-        checkoutUrl = generateFlutterwaveCheckout(
+        checkoutUrl = await generateFlutterwaveCheckout(
           amount as string,
           currency as string,
           name as string,
@@ -57,7 +60,7 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
         break;
 
       case 'mpesa':
-        checkoutUrl = generateMpesaCheckout(
+        checkoutUrl = await generateMpesaCheckout(
           amount as string,
           currency as string,
           phone as string,
@@ -85,10 +88,7 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Payment success callback handler
- * GET /api/payments/success
- */
+
 export const handlePaymentSuccess = async (req: Request, res: Response) => {
   try {
     const { transactionId, donorId, provider, reference, token } = req.query;
@@ -201,19 +201,63 @@ function generateFlutterwaveCheckout(
 /**
  * M-Pesa Checkout URL Generator
  */
-function generateMpesaCheckout(
+async function generateMpesaCheckout(
   amount: string,
   currency: string,
   phone: string,
   donorId: string,
   successUrl: string,
   cancelUrl: string
-): string {
-  // TODO: Implement real M-Pesa (Safaricom) STK Push integration
-  // For now, redirect to M-Pesa homepage for testing
-  console.log(`💳 M-Pesa checkout: ${currency} ${amount} to ${phone} (donor: ${donorId})`);
-  return 'https://www.safaricom.co.ke/personal/m-pesa';
+): Promise<string> {
+  if (!phone) {
+    throw new Error('Phone number is required for M-Pesa');
+  }
+
+  const parsedAmount = Number(amount);
+  if (!Number.isInteger(parsedAmount) || parsedAmount <= 0) {
+    throw new Error('Amount must be a positive integer for M-Pesa');
+  }
+
+  console.log(`💳 Initiating M-Pesa STK push: ${currency} ${amount} to ${phone} (donor: ${donorId})`);
+
+  const result = await initiateStkPush({
+    amount: parsedAmount,
+    phoneNumber: phone,
+    accountReference: donorId || 'ADE-DONATION',
+    transactionDesc: 'Donation to ADE Foundation'
+  });
+
+  if (!result.success) {
+    throw new Error(result.message || 'M-Pesa STK push initiation failed');
+  }
+
+  const donationPayload: Record<string, any> = {
+    amount: parsedAmount,
+    date: new Date(),
+    donationType: 'general',
+    message: 'M-Pesa donation initiated',
+    currency: currency || 'KES',
+    paymentProvider: 'mpesa',
+    paymentStatus: 'PENDING',
+    checkoutRequestId: result.checkoutRequestId,
+    merchantRequestId: result.merchantRequestId,
+    paymentResultDesc: result.responseDescription
+  };
+
+  if (donorId && mongoose.Types.ObjectId.isValid(donorId)) {
+    donationPayload.donorid = new mongoose.Types.ObjectId(donorId);
+  }
+
+  await DonationModel.create(donationPayload);
+
+  const baseFrontend = process.env.FRONTEND_URL || 'http://localhost:5173';
+  return `${baseFrontend}/donation-success?provider=mpesa&status=pending&checkoutRequestId=${result.checkoutRequestId || ''}`;
 }
+
+
+
+
+
 
 /**
  * Webhook: PayPal IPN Handler
@@ -297,19 +341,31 @@ export const handleFlutterwaveWebhook = async (req: Request, res: Response) => {
  */
 export const handleMpesaWebhook = async (req: Request, res: Response) => {
   try {
-    const { Body } = req.body;
-    
     console.log('📨 M-Pesa callback received');
 
-    const result = Body?.stkCallback?.CallbackMetadata?.Item;
-    const amount = result?.find((item: any) => item.Name === 'Amount')?.Value;
-    const transactionId = result?.find((item: any) => item.Name === 'MpesaReceiptNumber')?.Value;
+    const callback = parseStkCallback(req.body);
+    const isSuccess = callback.resultCode === 0;
+    const nextStatus = isSuccess ? 'SUCCESS' : 'FAILED';
 
-    // TODO: Update donation record in database
-    // TODO: Send confirmation email
+    if (callback.checkoutRequestId) {
+      await DonationModel.findOneAndUpdate(
+        { checkoutRequestId: callback.checkoutRequestId, paymentProvider: 'mpesa' },
+        {
+          paymentStatus: nextStatus,
+          paymentResultCode: callback.resultCode,
+          paymentResultDesc: callback.resultDesc,
+          mpesaReceiptNumber: callback.mpesaReceiptNumber,
+          amount: callback.amount,
+          date: new Date()
+        },
+        { new: true }
+      );
+    }
 
-    if (transactionId) {
-      console.log(`✅ M-Pesa payment verified: ${transactionId} for amount: ${amount}`);
+    if (isSuccess) {
+      console.log(`✅ M-Pesa payment verified: ${callback.mpesaReceiptNumber} for amount: ${callback.amount}`);
+    } else {
+      console.log(`❌ M-Pesa payment failed: ${callback.checkoutRequestId} (${callback.resultCode}) ${callback.resultDesc}`);
     }
 
     res.status(200).json({ ResultCode: 0, ResultDesc: 'Confirmation received' });

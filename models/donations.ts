@@ -15,6 +15,13 @@ export interface Donation {
     message?: string;
     currency: string;
     donorid?: mongoose.Types.ObjectId;
+    paymentProvider?: 'mpesa' | 'paypal' | 'flutterwave';
+    paymentStatus?: 'PENDING' | 'SUCCESS' | 'FAILED';
+    checkoutRequestId?: string;
+    merchantRequestId?: string;
+    mpesaReceiptNumber?: string;
+    paymentResultCode?: number;
+    paymentResultDesc?: string;
 }
 
 const DonationSchema: Schema = new Schema({
@@ -24,6 +31,13 @@ const DonationSchema: Schema = new Schema({
     message: { type: String },
     currency: { type: String, required: true },
     donorid: { type: Schema.Types.ObjectId, ref: 'Donor' },
+    paymentProvider: { type: String, enum: ['mpesa', 'paypal', 'flutterwave'] },
+    paymentStatus: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'] },
+    checkoutRequestId: { type: String },
+    merchantRequestId: { type: String },
+    mpesaReceiptNumber: { type: String },
+    paymentResultCode: { type: Number },
+    paymentResultDesc: { type: String },
 });
 export const DonationModel = mongoose.model<Donation>('Donation', DonationSchema);
 
