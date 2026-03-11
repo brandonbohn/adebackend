@@ -56,6 +56,19 @@ function getRequiredEnv(name: string): string {
     return value;
 }
 
+function getShortCode(): string {
+    const shortCode =
+        process.env.MPESA_SHORTCODE ||
+        process.env.MPESA_SHORT_CODE ||
+        process.env.MPESA_BUSINESS_SHORT_CODE;
+
+    if (!shortCode) {
+        throw new Error('MPESA_SHORTCODE is not configured');
+    }
+
+    return shortCode;
+}
+
 function buildTimestamp(): string {
     const now = new Date();
     const pad = (value: number) => value.toString().padStart(2, '0');
@@ -113,7 +126,7 @@ export async function initiateStkPush(input: StkPushInput): Promise<StkPushResul
 
     const token = await getAccessToken();
     const { baseUrl } = getDarijaEnvironment();
-    const shortCode = getRequiredEnv('MPESA_SHORTCODE');
+    const shortCode = getShortCode();
     const passkey = getRequiredEnv('MPESA_PASSKEY');
     const callbackUrl = getRequiredEnv('MPESA_CALLBACK_URL');
 
