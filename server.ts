@@ -18,6 +18,8 @@ import programRoutes from './routes/programRoutes';
 import expenseRoutes from './routes/expenseRoutes';
 import reportRoutes from './routes/reportRoutes';
 import donorSystemContentRoutes from './routes/donorSystemContentRoutes';
+import sponsoredGirlRoutes from './routes/sponsoredGirlRoutes';
+import sponsorshipRoutes from './routes/sponsorshipRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 dotenv.config();
@@ -144,6 +146,14 @@ console.log('Report routes loaded');
 console.log('Loading donor system content routes...');
 app.use('/api/donor-system-content', donorSystemContentRoutes);
 console.log('Donor system content routes loaded');
+
+console.log('Loading sponsored girls routes...');
+app.use('/api/sponsored-girls', sponsoredGirlRoutes);
+console.log('Sponsored girls routes loaded');
+
+console.log('Loading sponsorship routes...');
+app.use('/api/sponsorships', sponsorshipRoutes);
+console.log('Sponsorship routes loaded');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);

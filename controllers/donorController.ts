@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import DonorsModel from '../models/donor';
 import DonationModel from '../models/donations';
+import { SponsorshipModel } from '../models/Sponsorship';
 import { upsertContactInfo } from '../services/contactInfoService';
 
 
@@ -65,6 +67,13 @@ function getSponsorshipLevel(sponsorshipPlan: unknown): 'starter' | 'basic' | 'f
     if (plan.includes('annual-1000') || plan.includes('premium')) return 'premium';
 
     return undefined;
+}
+
+function getSponsorshipCadence(sponsorshipPlan: unknown): 'monthly' | 'annual' | 'one_time' {
+    const plan = String(sponsorshipPlan || '').toLowerCase();
+    if (plan.includes('annual')) return 'annual';
+    if (plan.includes('one') || plan.includes('once')) return 'one_time';
+    return 'monthly';
 }
 
 const findAllDonors = async () => DonorsModel.find().populate('contactid');
@@ -150,6 +159,36 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                 paymentStatus: amount && paymentMethod ? 'PENDING' : undefined,
             });
             console.log(`💰 Created donation record: ${donation._id} for ${amount} ${currency}`);
+        }
+
+        // Create or update sponsorship relationship for sponsor flows.
+        if (isSponsor && req.body?.selectedGirlId && mongoose.Types.ObjectId.isValid(String(req.body.selectedGirlId))) {
+            const selectedGirlObjectId = new mongoose.Types.ObjectId(String(req.body.selectedGirlId));
+            const level = sponsorshipLevel || 'starter';
+
+            const sponsorship = await SponsorshipModel.findOneAndUpdate(
+                {
+                    donorId: existingDonor._id as any,
+                    sponsoredGirlId: selectedGirlObjectId,
+                    status: 'active',
+                },
+                {
+                    $setOnInsert: {
+                        donorId: existingDonor._id as any,
+                        sponsoredGirlId: selectedGirlObjectId,
+                        startDate: new Date(),
+                    },
+                    $set: {
+                        sponsorshipLevel: level,
+                        amount: Number(amount || 0),
+                        cadence: getSponsorshipCadence(req.body?.sponsorshipPlan),
+                        source: req.body?.source || 'girls-sponsorship-form',
+                    },
+                },
+                { upsert: true, new: true }
+            );
+
+            console.log(`🤝 Sponsorship linked: donor ${existingDonor._id} -> girl ${selectedGirlObjectId} (${sponsorship?._id})`);
         }
 
         // Generate payment URL if amount and payment method provided
