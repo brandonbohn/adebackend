@@ -1,4 +1,4 @@
-import paypal from '@paypal/checkout-server-sdk';
+const paypal = require('@paypal/checkout-server-sdk');
 
 /**
  * PayPal Service
@@ -7,9 +7,11 @@ import paypal from '@paypal/checkout-server-sdk';
 
 // Configure PayPal environment
 function getPayPalEnvironment() {
-  const clientId = process.env.PAYPAL_CLIENT_ID!;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET!;
-  const mode = process.env.PAYPAL_MODE || 'sandbox';
+  const clientId = (process.env.PAYPAL_CLIENT_ID || '').trim();
+  const clientSecret = (process.env.PAYPAL_CLIENT_SECRET || '').trim();
+  const mode = (process.env.PAYPAL_MODE || 'sandbox').trim().toLowerCase();
+
+  console.log(`🔧 PayPal Environment: mode=${mode}, clientId=${clientId.substring(0, 10)}...`);
 
   if (!clientId || !clientSecret) {
     throw new Error('PayPal credentials not configured in environment variables');
@@ -39,6 +41,10 @@ export async function createPayPalOrder(
   cancelUrl: string
 ): Promise<{ orderId: string; approvalUrl: string }> {
   try {
+    console.log(`📝 Creating PayPal order: amount=${amount}, currency=${currency}, donorId=${donorId}`);
+    console.log(`🔗 Return URL: ${returnUrl}`);
+    console.log(`❌ Cancel URL: ${cancelUrl}`);
+
     const client = getPayPalClient();
     
     const request = new paypal.orders.OrdersCreateRequest();
@@ -64,7 +70,10 @@ export async function createPayPalOrder(
       ],
     });
 
+    console.log('🚀 Executing PayPal request...');
     const response = await client.execute(request);
+    console.log('✅ PayPal request executed successfully');
+
     const order = response.result as any;
 
     // Find the approval URL
