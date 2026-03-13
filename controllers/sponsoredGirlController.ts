@@ -38,18 +38,25 @@ export async function createSponsoredGirl(req: Request, res: Response): Promise<
       return;
     }
 
-    const created = await SponsoredGirlModel.create({
-      name,
-      country,
-      age,
-      dream,
-      description,
-      sentenceInTheirWords,
-      situation,
-      image,
-      status,
-      sponsors: [],
-    });
+    const created = await SponsoredGirlModel.findOneAndUpdate(
+      { name, country },
+      {
+        $set: {
+          age,
+          dream,
+          description,
+          sentenceInTheirWords,
+          situation,
+          image,
+          status: status || 'Available for Sponsorship',
+        },
+        $setOnInsert: {
+          sponsors: [],
+          sponsorshipStartDate: new Date(),
+        }
+      },
+      { upsert: true, new: true }
+    );
 
     res.status(201).json({ success: true, girl: created });
   } catch (error: any) {

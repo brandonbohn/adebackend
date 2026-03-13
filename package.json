@@ -13,6 +13,7 @@
     "dev": "npm run build && npm start",
     "seed": "node scripts/seed.js",
     "seed:donor": "npm run build && node dist/scripts/seedDonorData.js",
+    "seed:girls": "node scripts/seedSponsoredGirls.js",
     "test:mongo": "node scripts/testMongo.js",
     "postbuild": "echo Postbuild complete"
   },
