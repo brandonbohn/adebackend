@@ -18,6 +18,8 @@ interface Donors {
     notes?: string;
     email?: string;
     phone?: string;
+    isSponsor?: boolean;
+    sponsorshipLevel?: 'starter' | 'basic' | 'full' | 'premium';
 }
 
 function normalizePaymentProvider(value: unknown): 'paypal' | 'flutterwave' | 'mpesa' {
@@ -31,6 +33,38 @@ function normalizePaymentProvider(value: unknown): 'paypal' | 'flutterwave' | 'm
     if (normalized === 'mpesa') return 'mpesa';
 
     return 'paypal';
+}
+
+function normalizeApiBaseUrl(url: string): string {
+    // Render should always be served over HTTPS for redirect URLs.
+    if (url.includes('onrender.com') && url.startsWith('http://')) {
+        return url.replace('http://', 'https://');
+    }
+    return url;
+}
+
+function getDonationTypeFromRequest(req: Request): 'general' | 'recurring' {
+    const source = String(req.body?.source || '').toLowerCase();
+    const sponsorType = String(req.body?.sponsorType || '').toLowerCase();
+    const sponsorshipPlan = String(req.body?.sponsorshipPlan || '').toLowerCase();
+
+    if (source.includes('sponsorship') || sponsorType === 'girl' || sponsorshipPlan) {
+        return 'recurring';
+    }
+
+    return 'general';
+}
+
+function getSponsorshipLevel(sponsorshipPlan: unknown): 'starter' | 'basic' | 'full' | 'premium' | undefined {
+    const plan = String(sponsorshipPlan || '').toLowerCase();
+
+    if (!plan) return undefined;
+    if (plan.includes('monthly-21') || plan.includes('starter')) return 'starter';
+    if (plan.includes('annual-250') || plan.includes('basic')) return 'basic';
+    if (plan.includes('annual-500') || plan.includes('full')) return 'full';
+    if (plan.includes('annual-1000') || plan.includes('premium')) return 'premium';
+
+    return undefined;
 }
 
 const findAllDonors = async () => DonorsModel.find().populate('contactid');
@@ -61,6 +95,11 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             country = 'Not specified';
         }
 
+        const isSponsor = String(req.body?.sponsorType || '').toLowerCase() === 'girl'
+            || String(req.body?.source || '').toLowerCase().includes('sponsorship')
+            || !!req.body?.sponsorshipPlan;
+        const sponsorshipLevel = getSponsorshipLevel(req.body?.sponsorshipPlan);
+
         // Upsert ContactInfo by email (or phone) and use its _id as contactid
         const contact = await upsertContactInfo({ name, email, phone, country });
 
@@ -78,6 +117,8 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
                     ...(phone ? { phone } : {}),
                     ...(source ? { source } : {}),
                     ...(notes ? { notes } : {}),
+                    isSponsor,
+                    ...(sponsorshipLevel ? { sponsorshipLevel } : {}),
                 },
             },
             { upsert: true, new: true }
@@ -86,13 +127,27 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
         // Create donation record if amount is provided
         let donation = null;
         if (amount) {
+            const donationType = getDonationTypeFromRequest(req);
+            const sponsorshipMeta = {
+                source: req.body?.source,
+                sponsorType: req.body?.sponsorType,
+                selectedGirl: req.body?.selectedGirl,
+                selectedGirlId: req.body?.selectedGirlId,
+                sponsorshipPlan: req.body?.sponsorshipPlan,
+            };
+            const hasSponsorshipMeta = Object.values(sponsorshipMeta).some((value) => value !== undefined && value !== '');
+
             donation = await DonationModel.create({
                 donorid: existingDonor._id as any,
                 amount: parseFloat(amount),
                 date: new Date(),
-                donationType: 'general',
-                message: req.body.message || '',
-                currency: currency || 'USD'
+                donationType,
+                message: hasSponsorshipMeta
+                    ? `${req.body.message || ''}${req.body.message ? ' ' : ''}${JSON.stringify(sponsorshipMeta)}`
+                    : (req.body.message || ''),
+                currency: currency || 'USD',
+                paymentProvider: amount && paymentMethod ? normalizePaymentProvider(paymentMethod) : undefined,
+                paymentStatus: amount && paymentMethod ? 'PENDING' : undefined,
             });
             console.log(`💰 Created donation record: ${donation._id} for ${amount} ${currency}`);
         }
@@ -105,7 +160,8 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
             const requestBaseUrl = forwardedHost
                 ? `${forwardedProto || 'https'}://${forwardedHost}`
                 : `${req.protocol}://${req.get('host')}`;
-            const apiBaseUrl = process.env.API_BASE_URL || process.env.API_URL || requestBaseUrl || 'https://adebackend.onrender.com';
+            const rawApiBaseUrl = process.env.API_BASE_URL || process.env.API_URL || requestBaseUrl || 'https://adebackend.onrender.com';
+            const apiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
             const provider = normalizePaymentProvider(paymentMethod);
             
             const params = new URLSearchParams({

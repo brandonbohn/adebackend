@@ -12,6 +12,8 @@ export interface Donors {
     pastDonations?: any[];
     source?: string;
     notes?: string;
+    isSponsor?: boolean;
+    sponsorshipLevel?: 'starter' | 'basic' | 'full' | 'premium';
 
 }    
     
@@ -24,7 +26,13 @@ const DonorsSchema: Schema = new Schema({
     source: { type: String },
     notes: { type: String },
     email: { type: String },
-     phone: { type: String },
+        phone: { type: String },
+        isSponsor: { type: Boolean, default: false },
+        sponsorshipLevel: {
+            type: String,
+            enum: ['starter', 'basic', 'full', 'premium'],
+            required: false,
+        },
    });
 
 export const DonorsModel = mongoose.model<Donors>('Donors', DonorsSchema);

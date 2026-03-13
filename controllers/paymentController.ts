@@ -106,9 +106,30 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
 
     // Redirect directly to the payment provider (browser-friendly)
     return res.redirect(checkoutUrl);
-  } catch (error) {
-    console.error('Error generating checkout URL:', error);
-    const errorPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-error?error=checkout_failed`;
+  } catch (error: any) {
+    const message = String(error?.message || '').toLowerCase();
+    const provider = String(req.query.provider || '').toLowerCase();
+    let reason = 'checkout_failed';
+
+    if (message.includes('timed out')) {
+      reason = 'paypal_timeout';
+    } else if (message.includes('invalid_client') || message.includes('authentication')) {
+      reason = 'paypal_auth_failed';
+    } else if (message.includes('currency')) {
+      reason = 'paypal_currency_error';
+    } else if (message.includes('missing required parameters')) {
+      reason = 'invalid_checkout_params';
+    }
+
+    console.error('Error generating checkout URL:', {
+      provider,
+      reason,
+      message: error?.message || String(error),
+      stack: error?.stack,
+      query: req.query,
+    });
+
+    const errorPage = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-error?error=checkout_failed&reason=${encodeURIComponent(reason)}&provider=${encodeURIComponent(provider)}`;
     res.redirect(errorPage);
   }
 };
