@@ -100,7 +100,12 @@ export async function addDonor(req: Request, res: Response): Promise<void> {
         // Generate payment URL if amount and payment method provided
         let paymentUrl = null;
         if (amount && paymentMethod) {
-            const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:8080';
+            const forwardedProto = req.get('x-forwarded-proto');
+            const forwardedHost = req.get('x-forwarded-host');
+            const requestBaseUrl = forwardedHost
+                ? `${forwardedProto || 'https'}://${forwardedHost}`
+                : `${req.protocol}://${req.get('host')}`;
+            const apiBaseUrl = process.env.API_BASE_URL || process.env.API_URL || requestBaseUrl || 'https://adebackend.onrender.com';
             const provider = normalizePaymentProvider(paymentMethod);
             
             const params = new URLSearchParams({

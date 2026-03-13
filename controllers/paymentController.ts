@@ -45,6 +45,17 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
     const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donation-success?donorId=${donorId}`;
     const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donate?cancelled=true`;
 
+    const forwardedProto = req.get('x-forwarded-proto');
+    const forwardedHost = req.get('x-forwarded-host');
+    const requestBaseUrl = forwardedHost
+      ? `${forwardedProto || 'https'}://${forwardedHost}`
+      : `${req.protocol}://${req.get('host')}`;
+    const apiBaseUrl = process.env.API_URL || process.env.API_BASE_URL || requestBaseUrl || 'https://adebackend.onrender.com';
+
+    // For PayPal, use backend success endpoint to capture payment first
+    const paypalSuccessUrl = `${apiBaseUrl}/api/payments/success?provider=paypal&donorId=${donorId}`;
+    const paypalCancelUrl = `${apiBaseUrl}/api/payments/cancel?provider=paypal&donorId=${donorId}`;
+
     let checkoutUrl = '';
 
     switch (normalizedProvider) {
@@ -55,8 +66,8 @@ export const getCheckoutUrl = async (req: Request, res: Response) => {
           name as string,
           email as string,
           donorId as string,
-          successUrl,
-          cancelUrl
+          paypalSuccessUrl,
+          paypalCancelUrl
         );
         break;
 
