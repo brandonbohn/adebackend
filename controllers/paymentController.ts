@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import https from 'https';
 import { PaymentProcessingRequest } from '../types/paymentTypes';
 import { createPayPalOrder, capturePayPalOrder, verifyPayPalWebhook } from '../services/paypalService';
 import { initiateStkPush, parseStkCallback } from '../services/mpesaService';
@@ -17,6 +18,79 @@ function normalizePaymentProvider(value: unknown): 'paypal' | 'flutterwave' | 'm
 
   return '';
 }
+
+function getPayPalOAuthStatus(url: string, clientId: string, clientSecret: string): Promise<{ status?: number; error?: string }> {
+  return new Promise((resolve) => {
+    const auth = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+    const body = 'grant_type=client_credentials';
+
+    const req = https.request(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: auth,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(body),
+        },
+      },
+      (res) => {
+        let payload = '';
+        res.on('data', (chunk) => {
+          payload += chunk;
+        });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(payload || '{}');
+            resolve({ status: res.statusCode, error: parsed?.error });
+          } catch (_error) {
+            resolve({ status: res.statusCode });
+          }
+        });
+      }
+    );
+
+    req.on('error', (error) => {
+      resolve({ error: error.message });
+    });
+
+    req.write(body);
+    req.end();
+  });
+}
+
+export const getPayPalDiagnostics = async (req: Request, res: Response) => {
+  const requiredKey = (process.env.PAYPAL_DIAG_KEY || '').trim();
+  if (requiredKey) {
+    const providedKey = String(req.query.key || '').trim();
+    if (providedKey !== requiredKey) {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+  }
+
+  const clientId = (process.env.PAYPAL_CLIENT_ID || '').trim();
+  const clientSecret = (process.env.PAYPAL_CLIENT_SECRET || '').trim();
+  const mode = (process.env.PAYPAL_MODE || '').trim().toLowerCase();
+
+  if (!clientId || !clientSecret) {
+    return res.status(500).json({ success: false, error: 'PayPal credentials missing in runtime env' });
+  }
+
+  const [sandbox, live] = await Promise.all([
+    getPayPalOAuthStatus('https://api-m.sandbox.paypal.com/v1/oauth2/token', clientId, clientSecret),
+    getPayPalOAuthStatus('https://api-m.paypal.com/v1/oauth2/token', clientId, clientSecret),
+  ]);
+
+  return res.json({
+    success: true,
+    mode,
+    clientIdPrefix: clientId.substring(0, 8),
+    clientIdLength: clientId.length,
+    clientSecretLength: clientSecret.length,
+    sandbox,
+    live,
+  });
+};
 
 /**
  * Redirect to payment processor with pre-filled donor information
