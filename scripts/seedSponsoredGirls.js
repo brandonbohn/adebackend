@@ -18,7 +18,7 @@ const girls = [
     sentenceInTheirWords: "I'll appreciate any support for ADE.",
     situation: 'Her mother can barely feed her and she is sometimes sent home for lack of school fees.',
     status: 'Available for Sponsorship',
-    image: frontendImage('/patience.jpeg')
+    image: frontendImage('/talia.jpeg')
   },
   {
     name: 'Vivian Atieno',

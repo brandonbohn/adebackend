@@ -6,8 +6,8 @@ import { SponsorshipModel } from '../models/Sponsorship';
 const DEFAULT_FRONTEND_URL = 'https://www.adekiberafoundation.org';
 
 const girlImagePathByName: Record<string, string> = {
-  'mithcell atieno': '/patience.jpeg',
-  'mitchell atieno': '/patience.jpeg',
+  'mithcell atieno': '/talia.jpeg',
+  'mitchell atieno': '/talia.jpeg',
   'vivian atieno': '/vivian.jpeg',
   'cynthia anyaugo': '/Cynthia.jpeg',
   'cindy adhiambo': '/cindy.jpeg',
