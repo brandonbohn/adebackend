@@ -2,6 +2,11 @@
 require('dotenv').config();
 
 const baseUrl = process.env.SEED_API_BASE_URL || process.env.API_URL || 'https://adebackend.onrender.com';
+const frontendUrl = (process.env.FRONTEND_URL || 'https://www.adekiberafoundation.org').replace(/\/$/, '');
+
+function frontendImage(path) {
+  return `${frontendUrl}${path.startsWith('/') ? path : `/${path}`}`;
+}
 
 const girls = [
   {
@@ -13,7 +18,7 @@ const girls = [
     sentenceInTheirWords: "I'll appreciate any support for ADE.",
     situation: 'Her mother can barely feed her and she is sometimes sent home for lack of school fees.',
     status: 'Available for Sponsorship',
-    image: '/mithcell.jpeg'
+    image: frontendImage('/patience.jpeg')
   },
   {
     name: 'Vivian Atieno',
@@ -24,7 +29,7 @@ const girls = [
     sentenceInTheirWords: 'When I grow up I want to help vulnerable girls.',
     situation: 'She lost her father and her family survives on very limited income.',
     status: 'Available for Sponsorship',
-    image: '/vivian.jpeg'
+    image: frontendImage('/vivian.jpeg')
   },
   {
     name: 'Cynthia Anyaugo',
@@ -35,7 +40,7 @@ const girls = [
     sentenceInTheirWords: 'I wish to play internationally.',
     situation: 'Lost a parent; sponsorship helps ensure continued education.',
     status: 'Available for Sponsorship',
-    image: '/cynthia.jpeg'
+    image: frontendImage('/Cynthia.jpeg')
   },
   {
     name: 'Cindy Adhiambo',
@@ -46,7 +51,7 @@ const girls = [
     sentenceInTheirWords: 'ADE CBO has helped us in so many ways.',
     situation: 'Lives with her grandmother who struggles to provide enough support for the household.',
     status: 'Available for Sponsorship',
-    image: '/cindy.jpeg'
+    image: frontendImage('/cindy.jpeg')
   }
 ];
 

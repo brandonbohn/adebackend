@@ -3,6 +3,38 @@ import mongoose from 'mongoose';
 import { SponsoredGirlModel } from '../models/SponsoredGirl';
 import { SponsorshipModel } from '../models/Sponsorship';
 
+const DEFAULT_FRONTEND_URL = 'https://www.adekiberafoundation.org';
+
+const girlImagePathByName: Record<string, string> = {
+  'mithcell atieno': '/patience.jpeg',
+  'mitchell atieno': '/patience.jpeg',
+  'vivian atieno': '/vivian.jpeg',
+  'cynthia anyaugo': '/Cynthia.jpeg',
+  'cindy adhiambo': '/cindy.jpeg',
+};
+
+function getFrontendBaseUrl(): string {
+  return (process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL).trim().replace(/\/$/, '');
+}
+
+function normalizeGirlImage(image: unknown, name?: unknown): string | undefined {
+  const rawImage = typeof image === 'string' ? image.trim() : '';
+  const normalizedName = typeof name === 'string' ? name.trim().toLowerCase() : '';
+  const fallbackPath = girlImagePathByName[normalizedName];
+
+  if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) {
+    return rawImage;
+  }
+
+  const imagePath = rawImage || fallbackPath;
+  if (!imagePath) {
+    return undefined;
+  }
+
+  const canonicalPath = girlImagePathByName[normalizedName] || imagePath;
+  return `${getFrontendBaseUrl()}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`;
+}
+
 export async function getAllSponsoredGirls(req: Request, res: Response): Promise<void> {
   try {
     const girls = await SponsoredGirlModel.find().sort({ createdAt: -1, name: 1 }).lean();
@@ -16,6 +48,7 @@ export async function getAllSponsoredGirls(req: Request, res: Response): Promise
 
     const response = girls.map((girl: any) => ({
       ...girl,
+      image: normalizeGirlImage(girl.image, girl.name),
       sponsorCount: countsByGirl.get(String(girl._id)) || 0,
     }));
 
@@ -47,7 +80,7 @@ export async function createSponsoredGirl(req: Request, res: Response): Promise<
           description,
           sentenceInTheirWords,
           situation,
-          image,
+          image: normalizeGirlImage(image, name),
           status: status || 'Available for Sponsorship',
         },
         $setOnInsert: {
