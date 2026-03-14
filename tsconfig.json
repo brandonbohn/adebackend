@@ -21,6 +21,7 @@
     "scripts/**/*.ts",
     "server.ts",
     "database.ts",
-    "index.ts"
+    "index.ts",
+    "testPayPal.ts"
 , "models/donor.ts"  ]
 }
