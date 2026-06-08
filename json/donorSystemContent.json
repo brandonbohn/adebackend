@@ -18,44 +18,72 @@
       {
         "id": "budgets",
         "label": "Budgets",
-        "icon": "💰",
+        "icon": "�",
         "route": "/budgets",
         "description": "Manage organizational budgets"
       },
       {
-        "id": "expenses",
-        "label": "Expenses",
-        "icon": "💳",
-        "route": "/expenses",
-        "description": "Track and manage expenses"
-      },
-      {
         "id": "programs",
         "label": "Programs",
-        "icon": "📋",
+        "icon": "📁",
         "route": "/programs",
         "description": "Manage programs and initiatives"
       },
       {
+        "id": "expenses",
+        "label": "Expenses",
+        "icon": "�",
+        "route": "/expenses",
+        "description": "Track and manage expenses"
+      },
+      {
         "id": "reports",
         "label": "Reports",
-        "icon": "📈",
+        "icon": "�",
         "route": "/reports",
         "description": "Generate and view reports"
       },
       {
-        "id": "teams",
-        "label": "Teams",
-        "icon": "👥",
-        "route": "/teams",
-        "description": "Manage teams and team members"
+        "id": "donors",
+        "label": "Donor List",
+        "icon": "🤝",
+        "route": "/donors",
+        "description": "Manage donor information"
+      },
+      {
+        "id": "donations",
+        "label": "Donations",
+        "icon": "💰",
+        "route": "/donations",
+        "description": "Track donations"
       },
       {
         "id": "grants",
-        "label": "Grants",
-        "icon": "🎁",
+        "label": "Grant Tracking",
+        "icon": "📜",
         "route": "/grants",
-        "description": "Manage grants and funding opportunities"
+        "description": "Track grant applications and funding"
+      },
+      {
+        "id": "team",
+        "label": "Team",
+        "icon": "🧑‍🤝‍🧑",
+        "route": "/team",
+        "description": "Manage team members"
+      },
+      {
+        "id": "website",
+        "label": "Website",
+        "icon": "🌐",
+        "route": "https://adekiberafoundation.org",
+        "description": "Visit the main website"
+      },
+      {
+        "id": "website-editor",
+        "label": "Website Editor",
+        "icon": "🛠️",
+        "route": "https://adekiberafoundation.org/wp-admin",
+        "description": "Edit the website content"
       }
     ]
   },
