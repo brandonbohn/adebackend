@@ -170,7 +170,7 @@ app.use('/api/grants', grantRoutes);
 console.log('Grant routes loaded');
 
 console.log('Loading grant file routes...');
-app.use('/api/grant-files', grantFileRoutes);
+app.use('/api/grants', grantFileRoutes);
 app.use('/api/resources', resourceRoutes);
 console.log('Grant file routes loaded');
 
