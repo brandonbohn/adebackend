@@ -1,18 +1,42 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface GrantRequirement {
+  id: string;
+  label: string;
+  completed: boolean;
+  dueDate?: string;
+}
+
 export interface Grant extends Document {
   id: string;
-  name: string;
-  organization: string;
-  amount: number;
-  currency: string;
-  applicationDate: string;
-  deadline: string;
-  description: string;
+  title: string;
+  funder: string;
+  company?: string;
+  sourceUrl?: string;
+  researchDate?: string;
+  deadline?: string;
+  nextActionDate?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  amountAwarded: number;
+  amountReceived: number;
+  startDate?: string;
+  endDate?: string;
   status: string;
+  purpose?: string;
+  requirements: GrantRequirement[];
+  notes?: string;
   createdDate: string;
   fileIds?: string[];
 }
+
+const GrantRequirementSchema: Schema = new Schema({
+  id: { type: String, required: true },
+  label: { type: String, required: true },
+  completed: { type: Boolean, required: true, default: false },
+  dueDate: { type: String, required: false }
+});
 
 const GrantSchema: Schema = new Schema({
   id: {
@@ -20,39 +44,80 @@ const GrantSchema: Schema = new Schema({
     required: true,
     unique: true
   },
-  name: {
+  title: {
     type: String,
     required: true
   },
-  organization: {
+  funder: {
     type: String,
     required: true
   },
-  amount: {
-    type: Number,
-    required: true
-  },
-  currency: {
+  company: {
     type: String,
-    required: true,
-    default: 'USD'
+    required: false
   },
-  applicationDate: {
+  sourceUrl: {
     type: String,
-    required: true
+    required: false
+  },
+  researchDate: {
+    type: String,
+    required: false
   },
   deadline: {
     type: String,
-    required: true
+    required: false
   },
-  description: {
+  nextActionDate: {
     type: String,
-    required: true
+    required: false
+  },
+  contactName: {
+    type: String,
+    required: false
+  },
+  contactEmail: {
+    type: String,
+    required: false
+  },
+  contactPhone: {
+    type: String,
+    required: false
+  },
+  amountAwarded: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  amountReceived: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  startDate: {
+    type: String,
+    required: false
+  },
+  endDate: {
+    type: String,
+    required: false
   },
   status: {
     type: String,
     required: true,
-    default: 'applied'
+    default: 'pipeline'
+  },
+  purpose: {
+    type: String,
+    required: false
+  },
+  requirements: {
+    type: [GrantRequirementSchema],
+    default: []
+  },
+  notes: {
+    type: String,
+    required: false
   },
   createdDate: {
     type: String,

@@ -25,10 +25,10 @@ export async function getGrantById(req: Request, res: Response): Promise<void> {
 
 export async function createGrant(req: Request, res: Response): Promise<void> {
   try {
-    const { name, organization, amount, currency, applicationDate, deadline, description, status } = req.body;
+    const { title, funder, company, sourceUrl, researchDate, deadline, nextActionDate, contactName, contactEmail, contactPhone, amountAwarded, amountReceived, startDate, endDate, status, purpose, requirements, notes } = req.body;
     
-    if (!name || !organization || !amount || !applicationDate || !deadline || !description) {
-      res.status(400).json({ message: 'Missing required fields' });
+    if (!title || !funder) {
+      res.status(400).json({ message: 'Missing required fields: title, funder' });
       return;
     }
 
@@ -37,14 +37,24 @@ export async function createGrant(req: Request, res: Response): Promise<void> {
 
     const grant = await GrantModel.create({
       id,
-      name,
-      organization,
-      amount,
-      currency: currency || 'USD',
-      applicationDate,
-      deadline,
-      description,
-      status: status || 'applied',
+      title,
+      funder,
+      company: company || undefined,
+      sourceUrl: sourceUrl || undefined,
+      researchDate: researchDate || undefined,
+      deadline: deadline || undefined,
+      nextActionDate: nextActionDate || undefined,
+      contactName: contactName || undefined,
+      contactEmail: contactEmail || undefined,
+      contactPhone: contactPhone || undefined,
+      amountAwarded: amountAwarded || 0,
+      amountReceived: amountReceived || 0,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      status: status || 'pipeline',
+      purpose: purpose || undefined,
+      requirements: requirements || [],
+      notes: notes || undefined,
       createdDate: new Date().toISOString().split('T')[0]
     });
 
