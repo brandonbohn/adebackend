@@ -10,18 +10,18 @@ import {
 const router = express.Router();
 
 // Upload a resource
-router.post('/resources', uploadResource);
+router.post('/', uploadResource);
 
 // Get all resources
-router.get('/resources', getResources);
+router.get('/', getResources);
 
 // Get specific resource by ID
-router.get('/resources/:resourceId', getResourceById);
+router.get('/:resourceId', getResourceById);
 
 // Download a resource
-router.get('/resources/:resourceId/download', downloadResource);
+router.get('/:resourceId/download', downloadResource);
 
 // Delete a resource
-router.delete('/resources/:resourceId', deleteResource);
+router.delete('/:resourceId', deleteResource);
 
 export default router;
