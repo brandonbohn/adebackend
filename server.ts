@@ -22,6 +22,7 @@ import sponsoredGirlRoutes from './routes/internal/sponsoredGirlRoutes';
 import sponsorshipRoutes from './routes/internal/sponsorshipRoutes';
 import teamRoutes from './routes/internal/teamRoutes';
 import teamMemberRoutes from './routes/internal/teamMemberRoutes';
+import participantRoutes from './routes/internal/participantRoutes';
 import grantRoutes from './routes/internal/grantRoutes';
 import grantFileRoutes from './routes/internal/grantFileRoutes';
 import resourceRoutes from './routes/internal/resourceRoutes';
@@ -159,6 +160,7 @@ console.log('Loading team routes...');
 app.use('/api/teams', teamRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/team-members', teamMemberRoutes);
+app.use('/api/participants', participantRoutes);
 app.use('/api/team-members', teamRoutes);
 console.log('Team routes loaded');
 
