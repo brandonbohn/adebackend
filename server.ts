@@ -41,12 +41,7 @@ app.get('/_railway_test', (_req: Request, res: Response) => {
   res.status(200).json({ message: 'Welcome to the ADEF-C Backend Server' });
 });
 app.use(cors({
-  origin: [
-    'https://www.adekiberafoundation.org',
-    'http://localhost:5173', // allow local dev
-    'http://localhost:5175', // allow local dev (alt port)
-    'http://localhost:5174'  // allow local dev (alt port)
-  ],
+  origin: '*', // Allow all origins for development
   credentials: true
 }));
 console.log('CORS middleware loaded');
