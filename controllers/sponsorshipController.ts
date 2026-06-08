@@ -73,7 +73,7 @@ export async function getSponsorships(req: Request, res: Response): Promise<void
       .sort({ createdAt: -1 })
       .lean();
 
-    res.status(200).json({ success: true, sponsorships, total: sponsorships.length });
+    res.json(sponsorships);
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to load sponsorships', error: error?.message || String(error) });
   }
