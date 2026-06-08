@@ -150,6 +150,7 @@ console.log('Donor system content routes loaded');
 
 console.log('Loading sponsored girls routes...');
 app.use('/api/sponsored-girls', sponsoredGirlRoutes);
+app.use('/api/girls', sponsoredGirlRoutes);
 console.log('Sponsored girls routes loaded');
 
 console.log('Loading sponsorship routes...');

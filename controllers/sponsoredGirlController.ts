@@ -52,11 +52,7 @@ export async function getAllSponsoredGirls(req: Request, res: Response): Promise
       sponsorCount: countsByGirl.get(String(girl._id)) || 0,
     }));
 
-    res.status(200).json({
-      success: true,
-      girls: response,
-      total: response.length,
-    });
+    res.json(response);
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to load sponsored girls', error: error?.message || String(error) });
   }
