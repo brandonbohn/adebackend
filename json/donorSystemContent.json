@@ -42,6 +42,20 @@
         "icon": "📈",
         "route": "/reports",
         "description": "Generate and view reports"
+      },
+      {
+        "id": "teams",
+        "label": "Teams",
+        "icon": "👥",
+        "route": "/teams",
+        "description": "Manage teams and team members"
+      },
+      {
+        "id": "grants",
+        "label": "Grants",
+        "icon": "🎁",
+        "route": "/grants",
+        "description": "Manage grants and funding opportunities"
       }
     ]
   },
@@ -441,6 +455,145 @@
         "type": "textarea",
         "required": true,
         "placeholder": "Report summary"
+      }
+    ]
+  },
+  "teams": {
+    "title": "Team Management",
+    "description": "Manage teams and team members",
+    "statuses": [
+      {
+        "value": "active",
+        "label": "Active",
+        "color": "#4CAF50",
+        "icon": "✅"
+      },
+      {
+        "value": "inactive",
+        "label": "Inactive",
+        "color": "#9E9E9E",
+        "icon": "⏸️"
+      }
+    ],
+    "fields": [
+      {
+        "name": "name",
+        "label": "Team Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter team name"
+      },
+      {
+        "name": "description",
+        "label": "Description",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Team description"
+      },
+      {
+        "name": "coach",
+        "label": "Coach",
+        "type": "text",
+        "required": true,
+        "placeholder": "Coach name"
+      },
+      {
+        "name": "category",
+        "label": "Category",
+        "type": "select",
+        "required": true,
+        "options": ["U15", "U17", "Senior"]
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "type": "select",
+        "required": true
+      }
+    ]
+  },
+  "grants": {
+    "title": "Grant Management",
+    "description": "Manage grants and funding opportunities",
+    "statuses": [
+      {
+        "value": "applied",
+        "label": "Applied",
+        "color": "#FFA726",
+        "icon": "📝"
+      },
+      {
+        "value": "under-review",
+        "label": "Under Review",
+        "color": "#2196F3",
+        "icon": "🔍"
+      },
+      {
+        "value": "approved",
+        "label": "Approved",
+        "color": "#4CAF50",
+        "icon": "✅"
+      },
+      {
+        "value": "rejected",
+        "label": "Rejected",
+        "color": "#EF5350",
+        "icon": "❌"
+      }
+    ],
+    "fields": [
+      {
+        "name": "name",
+        "label": "Grant Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter grant name"
+      },
+      {
+        "name": "organization",
+        "label": "Organization",
+        "type": "text",
+        "required": true,
+        "placeholder": "Funding organization"
+      },
+      {
+        "name": "amount",
+        "label": "Amount",
+        "type": "number",
+        "required": true,
+        "placeholder": "0.00"
+      },
+      {
+        "name": "currency",
+        "label": "Currency",
+        "type": "select",
+        "required": true,
+        "options": ["USD", "KES"]
+      },
+      {
+        "name": "applicationDate",
+        "label": "Application Date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "name": "deadline",
+        "label": "Deadline",
+        "type": "date",
+        "required": true
+      },
+      {
+        "name": "description",
+        "label": "Description",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Grant description"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "type": "select",
+        "required": true
       }
     ]
   },
