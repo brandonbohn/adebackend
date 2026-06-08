@@ -82,3 +82,45 @@ export async function updateDonorSystemSection(req: Request, res: Response): Pro
     res.status(500).json({ message: 'Error updating donor system content', error: error.message });
   }
 }
+
+// Delete budget category
+export async function deleteBudgetCategory(req: Request, res: Response): Promise<void> {
+  try {
+    const { categoryId } = req.params;
+
+    if (!fs.existsSync(contentPath)) {
+      res.status(404).json({ message: 'Donor system content not found' });
+      return;
+    }
+
+    const content = JSON.parse(fs.readFileSync(contentPath, 'utf-8'));
+
+    if (!content.budgets || !content.budgets.categories) {
+      res.status(404).json({ message: 'Budget categories not found' });
+      return;
+    }
+
+    const categoryIndex = content.budgets.categories.findIndex((cat: any) => cat.id === categoryId);
+    if (categoryIndex === -1) {
+      res.status(404).json({ message: 'Category not found' });
+      return;
+    }
+
+    content.budgets.categories.splice(categoryIndex, 1);
+
+    // Also remove from field options if present
+    if (content.budgets.fields) {
+      const categoryField = content.budgets.fields.find((field: any) => field.name === 'category');
+      if (categoryField && categoryField.options) {
+        const categoryName = content.budgets.categories[categoryIndex]?.name || categoryId;
+        categoryField.options = categoryField.options.filter((opt: string) => opt !== categoryName);
+      }
+    }
+
+    fs.writeFileSync(contentPath, JSON.stringify(content, null, 2), 'utf-8');
+
+    res.json({ message: 'Category deleted successfully', categories: content.budgets.categories });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error deleting budget category', error: error.message });
+  }
+}

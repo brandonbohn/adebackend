@@ -3,7 +3,8 @@ import {
   getDonorSystemContent,
   getDonorSystemSection,
   updateDonorSystemContent,
-  updateDonorSystemSection
+  updateDonorSystemSection,
+  deleteBudgetCategory
 } from '../../controllers/donorSystemContentController';
 
 const router = express.Router();
@@ -19,5 +20,8 @@ router.put('/', updateDonorSystemContent);
 
 // Update specific section (admin only)
 router.put('/:section', updateDonorSystemSection);
+
+// Delete budget category
+router.delete('/budgets/categories/:categoryId', deleteBudgetCategory);
 
 export default router;
