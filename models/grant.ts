@@ -11,6 +11,7 @@ export interface Grant extends Document {
   description: string;
   status: string;
   createdDate: string;
+  fileIds?: string[];
 }
 
 const GrantSchema: Schema = new Schema({
@@ -56,6 +57,10 @@ const GrantSchema: Schema = new Schema({
   createdDate: {
     type: String,
     required: true
+  },
+  fileIds: {
+    type: [String],
+    default: []
   }
 }, {
   timestamps: true

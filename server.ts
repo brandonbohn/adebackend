@@ -22,6 +22,7 @@ import sponsoredGirlRoutes from './routes/internal/sponsoredGirlRoutes';
 import sponsorshipRoutes from './routes/internal/sponsorshipRoutes';
 import teamRoutes from './routes/internal/teamRoutes';
 import grantRoutes from './routes/internal/grantRoutes';
+import grantFileRoutes from './routes/internal/grantFileRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 dotenv.config();
@@ -161,6 +162,10 @@ console.log('Team routes loaded');
 console.log('Loading grant routes...');
 app.use('/api/grants', grantRoutes);
 console.log('Grant routes loaded');
+
+console.log('Loading grant file routes...');
+app.use('/api/grant-files', grantFileRoutes);
+console.log('Grant file routes loaded');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);
