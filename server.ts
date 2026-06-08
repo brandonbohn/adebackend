@@ -23,6 +23,7 @@ import sponsorshipRoutes from './routes/internal/sponsorshipRoutes';
 import teamRoutes from './routes/internal/teamRoutes';
 import grantRoutes from './routes/internal/grantRoutes';
 import grantFileRoutes from './routes/internal/grantFileRoutes';
+import resourceRoutes from './routes/internal/resourceRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 dotenv.config();
@@ -165,6 +166,7 @@ console.log('Grant routes loaded');
 
 console.log('Loading grant file routes...');
 app.use('/api/grant-files', grantFileRoutes);
+app.use('/api/resources', resourceRoutes);
 console.log('Grant file routes loaded');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
