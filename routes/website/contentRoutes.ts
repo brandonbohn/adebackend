@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { createContent, getAllContent, getContentBySection, updateContent, deleteContent, getAdedata } from '../controllers/contentController';
-import ContentModel from '../models/Content';
+import { createContent, getAllContent, getContentBySection, updateContent, deleteContent, getAdedata } from '../../controllers/contentController';
+import ContentModel from '../../models/Content';
 
 const router = Router();
 

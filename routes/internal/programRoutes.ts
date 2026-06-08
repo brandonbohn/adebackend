@@ -5,7 +5,7 @@ import {
   createProgram,
   updateProgram,
   deleteProgram
-} from '../controllers/programController';
+} from '../../controllers/programController';
 
 const router = express.Router();
 

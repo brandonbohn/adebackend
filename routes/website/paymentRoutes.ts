@@ -1,5 +1,5 @@
 import express from 'express';
-import { processPayment } from '../controllers/paymentOptionController';
+import { processPayment } from '../../controllers/paymentOptionController';
 import { 
   getCheckoutUrl, 
   getPayPalDiagnostics,
@@ -8,7 +8,7 @@ import {
   handlePayPalWebhook,
   handleFlutterwaveWebhook,
   handleMpesaWebhook
-} from '../controllers/paymentController';
+} from '../../controllers/paymentController';
 
 const router = express.Router();
 

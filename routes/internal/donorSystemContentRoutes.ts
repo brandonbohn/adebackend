@@ -4,7 +4,7 @@ import {
   getDonorSystemSection,
   updateDonorSystemContent,
   updateDonorSystemSection
-} from '../controllers/donorSystemContentController';
+} from '../../controllers/donorSystemContentController';
 
 const router = express.Router();
 

@@ -1,13 +1,13 @@
 import express from 'express';
-import { 
+import {
   getAllDonors
-} from '../controllers/donorController';
+} from '../../controllers/donorController';
 import {
   getAllVolunteers as getAdminVolunteers
-} from '../controllers/volunteerController';
+} from '../../controllers/volunteerController';
 import {
   getAllContacts
-} from '../controllers/contactController';
+} from '../../controllers/contactController';
 
 const router = express.Router();
 

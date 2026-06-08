@@ -4,7 +4,7 @@ import {
   getAllVolunteers,
   getVolunteerById,
   deleteVolunteer
-} from '../controllers/volunteerController';
+} from '../../controllers/volunteerController';
 
 const router = express.Router();
 

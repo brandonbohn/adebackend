@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createSponsorship, getSponsorships, updateSponsorshipStatus } from '../controllers/sponsorshipController';
+import { createSponsorship, getSponsorships, updateSponsorshipStatus } from '../../controllers/sponsorshipController';
 
 const router = Router();
 

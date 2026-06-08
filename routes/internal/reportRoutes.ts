@@ -5,7 +5,7 @@ import {
   createReport,
   updateReport,
   deleteReport
-} from '../controllers/reportController';
+} from '../../controllers/reportController';
 
 const router = express.Router();
 

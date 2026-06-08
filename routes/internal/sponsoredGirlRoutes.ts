@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createSponsoredGirl, getAllSponsoredGirls, getSponsorsForGirl } from '../controllers/sponsoredGirlController';
+import { createSponsoredGirl, getAllSponsoredGirls, getSponsorsForGirl } from '../../controllers/sponsoredGirlController';
 
 const router = Router();
 
