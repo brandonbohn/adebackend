@@ -123,6 +123,29 @@
         "description": "Infrastructure and equipment costs",
         "color": "#9C27B0",
         "icon": "🏗️"
+      },
+    
+
+       {
+        "id": "Safeguarding & Welfare",
+        "name": "Safeguarding and Welfare Budget",
+        "description": "Safeguarding and case management support",
+        "color": "#9C27B0",
+        "icon": "🏗️"
+      },
+       {
+        "id": "Equipment and Supplies",
+        "name": "Equipment and Supplies Budget",
+        "description": "Equipment and supplies costs",
+        "color": "#9C27B0",
+        "icon": "🏗️"
+      },
+       {
+        "id": "Growth and Fundraising",
+        "name": "Growth and Fundraising Budget",
+        "description": "Growth and fundraising costs",
+        "color": "#9C27B0",
+        "icon": "🏗️"
       }
     ],
     "fields": [
@@ -152,7 +175,7 @@
         "label": "Category",
         "type": "select",
         "required": true,
-        "options": ["Operations", "Programs", "Infrastructure"]
+        "options": ["Operations", "Programs", "Infrastructure", "Safeguarding & Welfare", "Equipment and Supplies", "Growth and Fundraising"]
       },
       {
         "name": "description",
@@ -167,16 +190,12 @@
     "title": "Expense Management",
     "description": "Track and manage all organizational expenses",
     "categories": [
-      "Education",
-      "Healthcare",
-      "Infrastructure",
-      "Food & Nutrition",
+      "Safeguarding & Welfare",
+      "Equipment and Supplies",
+      "Growth and Fundraising",
       "Operations",
-      "Salaries",
-      "Utilities",
-      "Transportation",
-      "Supplies",
-      "Other"
+      "Programs",
+      "Infrastructure"
     ],
     "statuses": [
       {
