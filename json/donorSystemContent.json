@@ -118,13 +118,6 @@
         "icon": "📋"
       },
       {
-        "id": "marketing",
-        "name": "Marketing Budget",
-        "description": "Marketing and outreach expenses",
-        "color": "#FF9800",
-        "icon": "📢"
-      },
-      {
         "id": "infrastructure",
         "name": "Infrastructure Budget",
         "description": "Infrastructure and equipment costs",
@@ -159,7 +152,7 @@
         "label": "Category",
         "type": "select",
         "required": true,
-        "options": ["Operations", "Programs", "Marketing", "Infrastructure"]
+        "options": ["Operations", "Programs", "Infrastructure"]
       },
       {
         "name": "description",
@@ -179,7 +172,6 @@
       "Infrastructure",
       "Food & Nutrition",
       "Operations",
-      "Marketing",
       "Salaries",
       "Utilities",
       "Transportation",
