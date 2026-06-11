@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  uploadGrantFile,
   uploadGrantDocument,
   getGrantFiles,
   getGrantFileById,
@@ -10,7 +11,7 @@ import {
 const router = express.Router();
 
 // Upload a file for a specific grant
-router.post('/:grantId/files', uploadGrantDocument);
+router.post('/:grantId/files', uploadGrantFile, uploadGrantDocument);
 
 // Get all files for a specific grant
 router.get('/:grantId/files', getGrantFiles);

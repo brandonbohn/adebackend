@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  uploadResourceFile,
   uploadResource,
   getResources,
   getResourceById,
@@ -10,7 +11,7 @@ import {
 const router = express.Router();
 
 // Upload a resource
-router.post('/', uploadResource);
+router.post('/', uploadResourceFile, uploadResource);
 
 // Get all resources
 router.get('/', getResources);
