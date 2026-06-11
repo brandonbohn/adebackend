@@ -8,8 +8,7 @@ import GrantModel from '../models/grant';
 // Configure multer for file storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const grantId = req.params.grantId || req.body.grantId;
-    const uploadDir = path.join(__dirname, '../uploads/grants', grantId);
+    const uploadDir = path.join(__dirname, '../uploads/grants');
     
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
@@ -71,6 +70,16 @@ export async function uploadGrantDocument(req: Request, res: Response): Promise<
       return;
     }
     
+    // Create grant-specific directory
+    const grantDir = path.join(__dirname, '../uploads/grants', grantId);
+    if (!fs.existsSync(grantDir)) {
+      fs.mkdirSync(grantDir, { recursive: true });
+    }
+    
+    // Move file to grant-specific directory
+    const finalPath = path.join(grantDir, req.file.filename);
+    fs.renameSync(req.file.path, finalPath);
+    
     // Generate file ID
     const count = await GrantFileModel.countDocuments();
     const fileId = `GF${String(count + 1).padStart(3, '0')}`;
@@ -81,7 +90,7 @@ export async function uploadGrantDocument(req: Request, res: Response): Promise<
       grantId,
       fileName: req.file.filename,
       originalName: req.file.originalname,
-      filePath: req.file.path,
+      filePath: finalPath,
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
       fileType,
