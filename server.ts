@@ -26,6 +26,7 @@ import participantRoutes from './routes/internal/participantRoutes';
 import grantRoutes from './routes/internal/grantRoutes';
 import grantFileRoutes from './routes/internal/grantFileRoutes';
 import resourceRoutes from './routes/internal/resourceRoutes';
+import proxyRoutes from './routes/internal/proxyRoutes';
 
 console.log('=== SERVER STARTUP LOG ===');
 dotenv.config();
@@ -166,13 +167,11 @@ app.use('/api/team-members', teamRoutes);
 console.log('Team routes loaded');
 
 console.log('Loading grant routes...');
-app.use('/api/grants', grantRoutes);
-console.log('Grant routes loaded');
-
-console.log('Loading grant file routes...');
 app.use('/api/grants', grantFileRoutes);
+app.use('/api/grants', grantRoutes);
 app.use('/api/resources', resourceRoutes);
-console.log('Grant file routes loaded');
+app.use('/api/proxy', proxyRoutes);
+console.log('Grant routes loaded');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 console.log(`Attempting to bind to port ${PORT} on 0.0.0.0...`);
